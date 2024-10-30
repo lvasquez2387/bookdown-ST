@@ -14,7 +14,7 @@ github-repo: https://github.com/lvasquez2387/Series_tiempo_bookdown.git
 description: "Este es un minilibro donde se analizará una serie temporal de temperatura superficial del mar."
 ---
 
-# Contexto de la propuesta  
+# Contexto de la propuestas  
 
 ```{r fig1, echo=FALSE, out.width="80%", fig.cap="*Temperatura superficial del mar durante un evento El Niño. Fuente: Senamhi*", fig.align='center'}
 knitr::include_graphics("img/El_Niño.png")

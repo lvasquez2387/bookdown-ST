@@ -11,3 +11,4 @@ media-movil-anual
 rezago
 estacionalidad
 análisis-de-descomposición
+contexto-de-la-propuestas
