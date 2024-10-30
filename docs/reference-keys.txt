@@ -1,0 +1,13 @@
+fig:fig1
+fig:fig2
+fig:explorar1
+fig:mmovil1
+fig:lag1
+fig:estacionalidad1
+contexto-de-la-propuesta
+fuente-de-datos
+exploración-de-la-serie-de-tiempo
+media-movil-anual
+rezago
+estacionalidad
+análisis-de-descomposición

@@ -1,0 +1,32 @@
+# Análisis de descomposición
+
+El análisis de descomposición en series de tiempo es una herramienta clave en la exploración y modelación de datos temporales. Su propósito principal es desglosar la serie en componentes fundamentales: tendencia, estacionalidad y residuales, permitiendo observar y estudiar cada uno por separado. Este enfoque es especialmente útil en series de tiempo donde existen patrones recurrentes y estructuras subyacentes que, de no ser identificadas, pueden distorsionar el análisis y reducir la precisión en la predicción de eventos futuros. La **tendencia** refleja el cambio a largo plazo en los datos, indicando si hay un crecimiento o disminución sostenido en la serie. La **estacionalidad** capta patrones cíclicos que se repiten en intervalos regulares, como los efectos mensuales o estacionales en el tiempo, mientras que los **residuales** contienen la variación aleatoria que no se explica por los otros dos componentes. Al aplicar la descomposición, se facilita el ajuste de modelos más precisos y se permite evaluar si los patrones observados son significativos o resultado del ruido.  
+
+Existen tres tipos de modelos principales para la descomposición: aditivo, multiplicativo y logarítmico-multiplicativo.
+
+* **Modelo Aditivo:** Este modelo asume que la serie de tiempo es la suma de sus componentes y se utiliza cuando la variabilidad estacional es constante a lo largo del tiempo. Su expresión matemática es:
+
+\begin{equation}
+Y_t = T_t + S_t + e_t
+\end{equation}
+
+
+* **Modelo Multiplicativo:** En este modelo, la serie de tiempo es el producto de sus componentes y es adecuado cuando la estacionalidad aumenta o disminuye proporcionalmente a la tendencia. Su expresión matemática es:  
+
+\begin{equation}
+Y_t = T_t * S_t * e_t
+\end{equation}  
+
+* **Modelo Logarítmico-Multiplicativo:** Este modelo es una variante del multiplicativo en el que se aplica el logaritmo natural para transformar la serie en un modelo aditivo. Esto permite manejar series con tendencia y estacionalidad no lineales y reducir la heterocedasticidad. Su expresión se convierte en:
+
+\begin{equation}
+ln(Y_t) = ln(T_t) + ln(S_t) + ln(e_t)
+\end{equation}  
+                
+  .         
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
