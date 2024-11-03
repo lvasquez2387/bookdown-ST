@@ -13,6 +13,9 @@ documentclass: book
 github-repo: https://github.com/lvasquez2387/Series_tiempo_bookdown.git
 description: "Este es un minilibro donde se analizará una serie temporal de temperatura superficial del mar."
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE) 
+```
 
 # Contexto de la propuestas  
 

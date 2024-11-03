@@ -1,6 +1,8 @@
-# Análisis de descomposición
+# Análisis de descomposición de una serie de tiempo
 
 El análisis de descomposición en series de tiempo es una herramienta clave en la exploración y modelación de datos temporales. Su propósito principal es desglosar la serie en componentes fundamentales: tendencia, estacionalidad y residuales, permitiendo observar y estudiar cada uno por separado. Este enfoque es especialmente útil en series de tiempo donde existen patrones recurrentes y estructuras subyacentes que, de no ser identificadas, pueden distorsionar el análisis y reducir la precisión en la predicción de eventos futuros. La **tendencia** refleja el cambio a largo plazo en los datos, indicando si hay un crecimiento o disminución sostenido en la serie. La **estacionalidad** capta patrones cíclicos que se repiten en intervalos regulares, como los efectos mensuales o estacionales en el tiempo, mientras que los **residuales** contienen la variación aleatoria que no se explica por los otros dos componentes. Al aplicar la descomposición, se facilita el ajuste de modelos más precisos y se permite evaluar si los patrones observados son significativos o resultado del ruido.  
+
+## Identificación de modelos
 
 Existen tres tipos de modelos principales para la descomposición: aditivo, multiplicativo y logarítmico-multiplicativo.
 
@@ -23,10 +25,584 @@ Y_t = T_t * S_t * e_t
 ln(Y_t) = ln(T_t) + ln(S_t) + ln(e_t)
 \end{equation}  
                 
-  .         
+En este sentido, es fundamental identificar el modelo que mejor se ajusta a nuestra serie temporal de TSM. Para ello, se grafican los promedios anuales en función de las desviaciones estándar anuales, como se muestra en la figura 4.1. A partir del gráfico de dispersión obtenido, se observa que la mayoría de los datos se agrupan en una nube de puntos que sugiere la selección de un modelo aditivo, ya que en este caso la variabilidad de los datos se mantiene relativamente constante con el aumento del promedio. Sin embargo, también se identifican algunos puntos en el lado derecho de la gráfica que parecen indicar una tendencia creciente o representan datos atípicos. Por lo tanto, se llevará a cabo un análisis de descomposición que proporcione un criterio adicional para la selección del modelo.  
+
+<button type="button" onclick="toggleCode('code5');">Mostrar Código</button>
+<div id="code5" style="display:none;">
+
+```{r modelo, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE} 
+
+library(dplyr)
+library(ggplot2)
+
+load("C:/Users/ASUS/OneDrive - PUJ Cali/2024_2/Series_de_tiempo/Unidad_1/bookdown-ST/df_tsm.RData")
+datos <- data.frame(fecha = df_tsm$Date,
+                           TSM = df_tsm$tsm)  
+
+estadisticas_anuales <- datos %>%
+  mutate(año = format(as.Date(fecha), "%Y")) %>%  # Extraer el año de la fecha
+  group_by(año) %>%
+  summarise(
+    año = first(año),                             # Columna año
+    promedio_anual = mean(TSM, na.rm = TRUE),   # Calcular promedio anual
+    desviacion_anual = sd(TSM, na.rm = TRUE)    # Calcular desviación estándar anual
+  )
+# Eliminar la última fila porque el año 2021 no esta completo
+estadisticas_anuales <- estadisticas_anuales %>%
+  slice(-n())  # Elimina la última fila
+
+# Gráfico 
+ggplot(estadisticas_anuales, aes(x = promedio_anual, y = desviacion_anual)) +
+  geom_point(color = "blue") +
+  labs(title = "Realción entre Promedio Anual y Desviación Estándar Anual de TSM",
+       x = "Promedio Anual",
+       y = "Desviación Estándar Anual") +
+   coord_equal() +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+```
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+
+```{r modelo1, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", fig.cap="*Realción entre Promedio Anual y Desviación Estándar Anual de Temperatura Superficial del Mar*", fig.align='center'} 
+
+library(dplyr)
+library(ggplot2)
+
+load("C:/Users/ASUS/OneDrive - PUJ Cali/2024_2/Series_de_tiempo/Unidad_1/bookdown-ST/df_tsm.RData")
+datos <- data.frame(fecha = df_tsm$Date,
+                           TSM = df_tsm$tsm) 
+
+estadisticas_anuales <- datos %>%
+  mutate(año = format(as.Date(fecha), "%Y")) %>%  # Extraer el año de la fecha
+  group_by(año) %>%
+  summarise(
+    año = first(año),                             # Columna año
+    promedio_anual = mean(TSM, na.rm = TRUE),   # Calcular promedio anual
+    desviacion_anual = sd(TSM, na.rm = TRUE)    # Calcular desviación estándar anual
+  )
+# Eliminar la última fila porque el año 2021 no esta completo
+estadisticas_anuales <- estadisticas_anuales %>%
+  slice(-n())  # Elimina la última fila
+
+# Gráfico 
+ggplot(estadisticas_anuales, aes(x = promedio_anual, y = desviacion_anual)) +
+  geom_point(color = "blue") +
+  labs(title = "Realción entre Promedio Anual y Desviación Estándar Anual de TSM",
+       x = "Promedio Anual",
+       y = "Desviación Estándar Anual") +
+   coord_equal() +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+```  
+
+## Descomposición de la serie de tiempo  
+
+La descomposición de la serie temporal de la temperatura del agua se llevó a cabo utilizando tanto un modelo aditivo como un modelo multiplicativo, arrojando resultados que reflejan la naturaleza de los datos y las expectativas sobre su comportamiento. Los errores cuadráticos medios (MSE) calculados fueron de 6.12e−31 para el modelo aditivo (figura 4.2) y 4.82e−30 para el modelo multiplicativo (figura 4.3), indicando un mejor ajuste del modelo aditivo, dado que presenta un MSE más bajo. Esto es especialmente relevante en el contexto del cambio climático, donde se espera que la temperatura del agua exhiba una tendencia creciente a largo plazo, mientras que la amplitud de la estacionalidad se mantiene constante. El modelo aditivo es más apropiado en este caso, ya que permite representar una tendencia que se suma a los componentes estacionales sin alterar su amplitud. Por lo tanto, se eligió el modelo aditivo como el más adecuado para capturar de manera precisa la dinámica de la serie temporal, alineándose con las expectativas sobre el aumento gradual de la temperatura del agua y la constancia de los patrones estacionales.
+
+
+<button type="button" onclick="toggleCode('code6');">Mostrar Código</button>
+<div id="code6" style="display:none;">
+
+``` {r descomp, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE }
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+library(tibble)
+library(gridExtra)
+library(grid)
+
+# Convertir la columna TSM a un objeto de serie temporal
+tsm_ts <- ts(df_tsm$tsm, start = c(year(min(df_tsm$Date)), month(min(df_tsm$Date))), frequency = 12)  
+
+# Descomposición de la serie
+aditivo <- decompose(tsm_ts, type = "additive")
+
+# Filtrar las filas con datos completos
+datos_completos1 <- na.omit(data.frame(
+  Observados = as.numeric(tsm_ts),
+  Predicciones = aditivo$trend * aditivo$seasonal * aditivo$random
+))
+
+# Calcular el MSE usando solo los datos completos
+mse_aditivo <- mean((datos_completos1$Observados - datos_completos1$Predicciones)^2)
+
+# Formatear el MSE en notación científica
+mse_aditivof<- formatC(mse_aditivo, format = "e", digits = 2)
+
+
+# Crear un data frame para los componentes con fechas
+componentes1 <- tibble(
+  Tiempo = as.Date(seq.Date(from = as.Date(min(df_tsm$Date)), by = "month", length.out = length(tsm_ts))),
+  Observados = as.numeric(tsm_ts),
+  Tendencia = as.numeric(aditivo$trend),
+  Estacionalidad = as.numeric(aditivo$seasonal),
+  Residuos = as.numeric(aditivo$random)
+)
+
+# Graficar componentes utilizando ggplot2
+
+p <- ggplot(componentes1, aes(x = Tiempo)) +
+  geom_line(aes(y = Observados), color = "black", size = 1) +
+  labs(title=NULL, y = "Observada", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p1 <- ggplot(componentes1, aes(x = Tiempo)) +
+  geom_line(aes(y = Tendencia), color = "red", size = 1) +
+  labs(title=NULL,y = "Tendencia", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p2 <- ggplot(componentes1, aes(x = Tiempo)) +
+  geom_line(aes(y = Estacionalidad), color = "blue", size = 1) +
+  labs(title=NULL,y = "Estacionalidad", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p3 <- ggplot(componentes1, aes(x = Tiempo)) +
+  geom_line(aes(y = Residuos), color = "green", size = 1) +
+  labs(title=NULL,y = "Residuos", x = "Tiempo") +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() 
+  
+
+# Crear un título más grande y en negrita
+titulo <- textGrob(
+  paste("Descomposición Aditiva de la Serie de Tiempo - MSE:", mse_aditivof),
+  gp = gpar(fontsize = 14, fontface = "bold")  # Ajustar tamaño y negrita
+)
+
+# Ajustar el tamaño de la figura
+#grid.newpage()  # Crear una nueva página de grid para ajustar el tamaño total de la figura
+grid.arrange(
+  titulo, p, p1, p2, p3,
+  ncol = 1,
+  heights = c(0.17, 1, 1, 1, 1)  # Ajustar la altura del título
+)
+
+```
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>  
+
+
+``` {r descomp1,  message=FALSE, warning=FALSE, echo=FALSE, out.width="90%", fig.cap="*Descomposición de la serie de timepo de Temperatura Superficial del Mar empleando un modelo aditivo*", fig.align='center'}
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+library(tibble)
+library(gridExtra)
+library(grid)
+
+# Convertir la columna TSM a un objeto de serie temporal
+tsm_ts <- ts(df_tsm$tsm, start = c(year(min(df_tsm$Date)), month(min(df_tsm$Date))), frequency = 12)  
+
+# Descomposición de la serie
+aditivo <- decompose(tsm_ts, type = "additive")
+
+# Filtrar las filas con datos completos
+datos_completos1 <- na.omit(data.frame(
+  Observados = as.numeric(tsm_ts),
+  Predicciones = aditivo$trend + aditivo$seasonal + aditivo$random
+))
+
+# Calcular el MSE usando solo los datos completos
+mse_aditivo <- mean((datos_completos1$Observados - datos_completos1$Predicciones)^2)
+
+# Formatear el MSE en notación científica
+mse_aditivof<- formatC(mse_aditivo, format = "e", digits = 2)
+
+
+# Crear un data frame para los componentes con fechas
+componentes1 <- tibble(
+  Tiempo = as.Date(seq.Date(from = as.Date(min(df_tsm$Date)), by = "month", length.out = length(tsm_ts))),
+  Observados = as.numeric(tsm_ts),
+  Tendencia = as.numeric(aditivo$trend),
+  Estacionalidad = as.numeric(aditivo$seasonal),
+  Residuos = as.numeric(aditivo$random)
+)
+
+# Graficar componentes utilizando ggplot2
+
+p <- ggplot(componentes1, aes(x = Tiempo)) +
+  geom_line(aes(y = Observados), color = "black", size = 1) +
+  labs(title=NULL, y = "Observada", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p1 <- ggplot(componentes1, aes(x = Tiempo)) +
+  geom_line(aes(y = Tendencia), color = "red", size = 1) +
+  labs(title=NULL,y = "Tendencia", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p2 <- ggplot(componentes1, aes(x = Tiempo)) +
+  geom_line(aes(y = Estacionalidad), color = "blue", size = 1) +
+  labs(title=NULL,y = "Estacionalidad", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p3 <- ggplot(componentes1, aes(x = Tiempo)) +
+  geom_line(aes(y = Residuos), color = "green", size = 1) +
+  labs(title=NULL,y = "Residuos", x = "Tiempo") +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() 
+  
+
+# Crear un título más grande y en negrita
+titulo <- textGrob(
+  paste("Descomposición Aditiva de la Serie de Tiempo - MSE:", mse_aditivof),
+  gp = gpar(fontsize = 14, fontface = "bold")  # Ajustar tamaño y negrita
+)
+
+# Ajustar el tamaño de la figura
+#grid.newpage()  # Crear una nueva página de grid para ajustar el tamaño total de la figura
+grid.arrange(
+  titulo, p, p1, p2, p3,
+  ncol = 1,
+  heights = c(0.17, 1, 1, 1, 1)  # Ajustar la altura del título
+)
+
+```
+
+
+<button type="button" onclick="toggleCode('code7');">Mostrar Código</button>
+<div id="code7" style="display:none;">
+
+``` {r descomp2, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+library(tibble)
+library(gridExtra)
+library(grid)
+
+# Convertir la columna TSM a un objeto de serie temporal
+tsm_ts <- ts(df_tsm$tsm, start = c(year(min(df_tsm$Date)), month(min(df_tsm$Date))), frequency = 12)  
+
+# Descomposición de la serie
+multiplicativo <- decompose(tsm_ts, type = "multiplicative")
+
+# Filtrar las filas con datos completos
+datos_completos <- na.omit(data.frame(
+  Observados = as.numeric(tsm_ts),
+  Predicciones = multiplicativo$trend * multiplicativo$seasonal * multiplicativo$random
+))
+
+# Calcular el MSE usando solo los datos completos
+mse_multiplicativo <- mean((datos_completos$Observados - datos_completos$Predicciones)^2)
+
+# Formatear el MSE en notación científica
+mse_multiplicativof<- formatC(mse_multiplicativo, format = "e", digits = 2)
+
+
+# Crear un data frame para los componentes con fechas
+componentes <- tibble(
+  Tiempo = as.Date(seq.Date(from = as.Date(min(df_tsm$Date)), by = "month", length.out = length(tsm_ts))),
+  Observados = as.numeric(tsm_ts),
+  Tendencia = as.numeric(multiplicativo$trend),
+  Estacionalidad = as.numeric(multiplicativo$seasonal),
+  Residuos = as.numeric(multiplicativo$random)
+)
+
+# Graficar componentes utilizando ggplot2
+
+p <- ggplot(componentes, aes(x = Tiempo)) +
+  geom_line(aes(y = Observados), color = "black", size = 1) +
+  labs(title=NULL, y = "Observada", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p1 <- ggplot(componentes, aes(x = Tiempo)) +
+  geom_line(aes(y = Tendencia), color = "red", size = 1) +
+  labs(title=NULL,y = "Tendencia", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p2 <- ggplot(componentes, aes(x = Tiempo)) +
+  geom_line(aes(y = Estacionalidad), color = "blue", size = 1) +
+  labs(title=NULL,y = "Estacionalidad", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p3 <- ggplot(componentes, aes(x = Tiempo)) +
+  geom_line(aes(y = Residuos), color = "green", size = 1) +
+  labs(title=NULL,y = "Residuos", x = "Tiempo") +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() 
+  
+
+# Crear un título más grande y en negrita
+titulo <- textGrob(
+  paste("Descomposición Multiplicativa de la Serie de Tiempo - MSE:", mse_multiplicativof),
+  gp = gpar(fontsize = 14, fontface = "bold")  # Ajustar tamaño y negrita
+)
+
+# Ajustar el tamaño de la figura
+#grid.newpage()  # Crear una nueva página de grid para ajustar el tamaño total de la figura
+grid.arrange(
+  titulo, p, p1, p2, p3,
+  ncol = 1,
+  heights = c(0.17, 1, 1, 1, 1)  # Ajustar la altura del título
+)
+
+```
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>  
 
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+``` {r descomp3,  message=FALSE, warning=FALSE, echo=FALSE, out.width="90%", fig.cap="*Descomposición de la serie de timepo de Temperatura Superficial del Mar empleando un modelo multiplicativo*", fig.align='center'}
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+library(tibble)
+library(gridExtra)
+library(grid)
+
+# Convertir la columna TSM a un objeto de serie temporal
+tsm_ts <- ts(df_tsm$tsm, start = c(year(min(df_tsm$Date)), month(min(df_tsm$Date))), frequency = 12)  
+
+# Descomposición de la serie
+multiplicativo <- decompose(tsm_ts, type = "multiplicative")
+
+# Filtrar las filas con datos completos
+datos_completos <- na.omit(data.frame(
+  Observados = as.numeric(tsm_ts),
+  Predicciones = multiplicativo$trend * multiplicativo$seasonal * multiplicativo$random
+))
+
+# Calcular el MSE usando solo los datos completos
+mse_multiplicativo <- mean((datos_completos$Observados - datos_completos$Predicciones)^2)
+
+# Formatear el MSE en notación científica
+mse_multiplicativof<- formatC(mse_multiplicativo, format = "e", digits = 2)
+
+
+# Crear un data frame para los componentes con fechas
+componentes <- tibble(
+  Tiempo = as.Date(seq.Date(from = as.Date(min(df_tsm$Date)), by = "month", length.out = length(tsm_ts))),
+  Observados = as.numeric(tsm_ts),
+  Tendencia = as.numeric(multiplicativo$trend),
+  Estacionalidad = as.numeric(multiplicativo$seasonal),
+  Residuos = as.numeric(multiplicativo$random)
+)
+
+# Graficar componentes utilizando ggplot2
+
+p <- ggplot(componentes, aes(x = Tiempo)) +
+  geom_line(aes(y = Observados), color = "black", size = 1) +
+  labs(title=NULL, y = "Observada", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p1 <- ggplot(componentes, aes(x = Tiempo)) +
+  geom_line(aes(y = Tendencia), color = "red", size = 1) +
+  labs(title=NULL,y = "Tendencia", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p2 <- ggplot(componentes, aes(x = Tiempo)) +
+  geom_line(aes(y = Estacionalidad), color = "blue", size = 1) +
+  labs(title=NULL,y = "Estacionalidad", x=NULL) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())
+
+p3 <- ggplot(componentes, aes(x = Tiempo)) +
+  geom_line(aes(y = Residuos), color = "green", size = 1) +
+  labs(title=NULL,y = "Residuos", x = "Tiempo") +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal() 
+  
+
+# Crear un título más grande y en negrita
+titulo <- textGrob(
+  paste("Descomposición Multiplicativa de la Serie de Tiempo - MSE:", mse_multiplicativof),
+  gp = gpar(fontsize = 14, fontface = "bold")  # Ajustar tamaño y negrita
+)
+
+# Ajustar el tamaño de la figura
+#grid.newpage()  # Crear una nueva página de grid para ajustar el tamaño total de la figura
+grid.arrange(
+  titulo, p, p1, p2, p3,
+  ncol = 1,
+  heights = c(0.17, 1, 1, 1, 1)  # Ajustar la altura del título
+)
+
+```
+
+## Estacionariedad
+
+Determinar si una serie de tiempo es estacionaria es clave, ya que muchos modelos estadísticos y de aprendizaje automático requieren que los datos sean estacionarios para ofrecer resultados precisos y válidos. Una serie estacionaria tiene propiedades estadísticas constantes a lo largo del tiempo, como la media y la varianza, lo que facilita la predicción y el análisis. Para evaluar si la serie de tiempo de la temperatura superficial del mar es estacionaria, se abordarán dos enfoques: un análisis gráfico y la realización de pruebas de hipótesis. En la primera parte, se calculó la media y la varianza anuales, obteniendo una varianza relativamente constante y una tendencia algo confusa, que al inicio parece estable, pero sugiere una tendencia creciente al final de la serie. Este análisis visual no permitió una conclusión clara sobre la estacionariedad de la serie, lo que llevó a implementar dos pruebas de hipótesis conocidas. La primera fue la Prueba de Dickey-Fuller Aumentada (ADF), donde la hipótesis nula establece que la serie tiene una raíz unitaria (no es estacionaria). Un valor p menor a 0.05 indica que se puede rechazar la hipótesis nula, sugiriendo que la serie es estacionaria. Por otro lado, la segunda prueba fue el test KPSS, cuya hipótesis nula postula que la serie es estacionaria. Con un valor p menor 0.05, no se puede rechazar la hipótesis nula, lo que sugiere que la serie es estacionaria. La tabla 4.1 que se muestra, un resumen de los resultados de las pruebas realizadas concluyendo que la serie de tiempo analizada es estacionaria.
+
+
+<button type="button" onclick="toggleCode('code8');">Mostrar Código</button>
+<div id="code8" style="display:none;">
+
+```{r estacion, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+library(ggplot2)
+library(tseries)
+library(kableExtra)
+library(dplyr)
+library(tidyr)
+library(patchwork)
+
+estadisticas_anuales2 <- datos %>%
+  mutate(año = format(as.Date(fecha), "%Y")) %>%  # Extraer el año de la fecha
+  group_by(año) %>%
+  summarise(
+    año = first(año),                             # Columna año
+    Media = mean(TSM, na.rm = TRUE),   # Calcular promedio anual
+    Varianza = var(TSM, na.rm = TRUE)    # Calcular varianza anual
+  )
+# Eliminar la última fila porque el año 2021 no está completo
+estadisticas_anuales2 <- estadisticas_anuales2 %>%
+  slice(-n())  # Elimina la última fila
+
+# Convertir 'año' a tipo numérico para la gráfica
+estadisticas_anuales2$año <- as.numeric(estadisticas_anuales2$año)
+
+# Graficar la media
+p1 <- ggplot(estadisticas_anuales2, aes(x = año)) +
+  geom_line(aes(y = Media), color = "blue", size = 1) +
+  labs(title="Cálculo de media por año",y = "Media", x=NULL) +
+  scale_x_continuous(breaks = seq(min(estadisticas_anuales2$año), 
+                                  max(estadisticas_anuales2$año), by = 5)) +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())+
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Graficar la varianza
+p2 <- ggplot(estadisticas_anuales2, aes(x = año)) +
+  geom_line(aes(y = Varianza), color = "blue", size = 1) +
+  labs(title="Cálculo de varianza por año ",y = "Varianza", x = "Tiempo") +
+  scale_x_continuous(breaks = seq(min(estadisticas_anuales2$año), 
+                                  max(estadisticas_anuales2$año), by = 5)) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Combinar los gráficos en un solo layout
+combined_plot <- p1 / p2
+combined_plot
+
+# Prueba de Dickey-Fuller Aumentada (ADF)
+resultado_adf <- adf.test(datos$TSM, alternative = "stationary")
+
+# Prueba KPSS
+resultado_kpss <- kpss.test(datos$TSM, null = "Level")
+
+# Crear un dataframe para los resultados
+resultados_tabla <- data.frame(
+  Prueba = c("Dickey-Fuller Aumentada", "KPSS"),
+  Estadístico = c(resultado_adf$statistic, resultado_kpss$statistic),
+  p_value = c(resultado_adf$p.value, resultado_kpss$p.value),
+  Hipótesis_Nula = c("Serie no estacionaria", "Serie estacionaria")
+)
+
+# Mostrar la tabla de resultados
+resultados_tabla %>%
+  kable("html", caption = "Resultados de las Pruebas de Estacionariedad") %>%
+  kable_styling("striped", full_width = F)
+
+```
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script> 
+
+
+```{r estacion1, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", fig.cap="*Análisis gráfico de la estacionariedad de la serie de tiempo de Temperatura superficial del mar.*", fig.align='center'}
+
+library(ggplot2)
+library(tseries)
+library(kableExtra)
+library(dplyr)
+library(tidyr)
+library(patchwork)
+
+estadisticas_anuales2 <- datos %>%
+  mutate(año = format(as.Date(fecha), "%Y")) %>%  # Extraer el año de la fecha
+  group_by(año) %>%
+  summarise(
+    año = first(año),                             # Columna año
+    Media = mean(TSM, na.rm = TRUE),   # Calcular promedio anual
+    Varianza = var(TSM, na.rm = TRUE)    # Calcular varianza anual
+  )
+# Eliminar la última fila porque el año 2021 no está completo
+estadisticas_anuales2 <- estadisticas_anuales2 %>%
+  slice(-n())  # Elimina la última fila
+
+# Convertir 'año' a tipo numérico para la gráfica
+estadisticas_anuales2$año <- as.numeric(estadisticas_anuales2$año)
+
+# Graficar la media
+p1 <- ggplot(estadisticas_anuales2, aes(x = año)) +
+  geom_line(aes(y = Media), color = "blue", size = 1) +
+  labs(title="Cálculo de media por año",y = "Media", x=NULL) +
+  scale_x_continuous(breaks = seq(min(estadisticas_anuales2$año), 
+                                  max(estadisticas_anuales2$año), by = 5)) +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank())+
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Graficar la varianza
+p2 <- ggplot(estadisticas_anuales2, aes(x = año)) +
+  geom_line(aes(y = Varianza), color = "blue", size = 1) +
+  labs(title="Cálculo de varianza por año ",y = "Varianza", x = "Tiempo") +
+  scale_x_continuous(breaks = seq(min(estadisticas_anuales2$año), 
+                                  max(estadisticas_anuales2$año), by = 5)) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Combinar los gráficos en un solo layout
+combined_plot <- p1 / p2
+combined_plot
+
+# Prueba de Dickey-Fuller Aumentada (ADF)
+resultado_adf <- adf.test(datos$TSM, alternative = "stationary")
+
+# Prueba KPSS
+resultado_kpss <- kpss.test(datos$TSM, null = "Level")
+
+# Crear un dataframe para los resultados
+resultados_tabla <- data.frame(
+  Prueba = c("Dickey-Fuller Aumentada", "KPSS"),
+  Estadístico = c(resultado_adf$statistic, resultado_kpss$statistic),
+  p_value = c(resultado_adf$p.value, resultado_kpss$p.value),
+  Hipótesis_Nula = c("Serie no estacionaria", "Serie estacionaria")
+)
+
+# Mostrar la tabla de resultados
+resultados_tabla %>%
+  kable("html", caption = "Resultados de las Pruebas de Estacionariedad") %>%
+  kable_styling("striped", full_width = F)
+
 ```

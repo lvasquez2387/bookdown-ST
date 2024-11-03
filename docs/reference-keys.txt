@@ -12,3 +12,16 @@ rezago
 estacionalidad
 análisis-de-descomposición
 contexto-de-la-propuestas
+fig:modelo1
+análisis-de-descomposición-de-una-serie-de-tiempo
+identificación-de-modelos
+descomposición-de-la-serie-de-tiempo
+fig:descomp-1
+fig:descomp-2
+fig:descomp1
+fig:descomp2
+fig:descomp3
+estacionariedad
+tab:estacion
+fig:estacion1
+tab:estacion1

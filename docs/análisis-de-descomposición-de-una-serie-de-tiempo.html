@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 4 Análisis de descomposición de una serie de tiempo | Análisis de Series de Tiempo de Temperatura Superficial del Mar</title>
+  <meta name="description" content="Este es un minilibro donde se analizará una serie temporal de temperatura superficial del mar." />
+  <meta name="generator" content="bookdown 0.41 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 4 Análisis de descomposición de una serie de tiempo | Análisis de Series de Tiempo de Temperatura Superficial del Mar" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="Este es un minilibro donde se analizará una serie temporal de temperatura superficial del mar." />
+  <meta name="github-repo" content="https://github.com/lvasquez2387/Series_tiempo_bookdown.git" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 4 Análisis de descomposición de una serie de tiempo | Análisis de Series de Tiempo de Temperatura Superficial del Mar" />
+  
+  <meta name="twitter:description" content="Este es un minilibro donde se analizará una serie temporal de temperatura superficial del mar." />
+  
+
+
+
+<meta name="date" content="2024-11-02" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="exploración-de-la-serie-de-tiempo.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="libs/bsTable-3.3.7/bootstrapTable.min.css" rel="stylesheet" />
+<script src="libs/bsTable-3.3.7/bootstrapTable.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">A Minimal Book Example</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Contexto de la propuestas</a></li>
+<li class="chapter" data-level="2" data-path="fuente-de-datos.html"><a href="fuente-de-datos.html"><i class="fa fa-check"></i><b>2</b> Fuente de Datos</a></li>
+<li class="chapter" data-level="3" data-path="exploración-de-la-serie-de-tiempo.html"><a href="exploración-de-la-serie-de-tiempo.html"><i class="fa fa-check"></i><b>3</b> Exploración de la Serie de Tiempo</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="exploración-de-la-serie-de-tiempo.html"><a href="exploración-de-la-serie-de-tiempo.html#media-movil-anual"><i class="fa fa-check"></i><b>3.1</b> Media movil anual</a></li>
+<li class="chapter" data-level="3.2" data-path="exploración-de-la-serie-de-tiempo.html"><a href="exploración-de-la-serie-de-tiempo.html#rezago"><i class="fa fa-check"></i><b>3.2</b> Rezago</a></li>
+<li class="chapter" data-level="3.3" data-path="exploración-de-la-serie-de-tiempo.html"><a href="exploración-de-la-serie-de-tiempo.html#estacionalidad"><i class="fa fa-check"></i><b>3.3</b> Estacionalidad</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="análisis-de-descomposición-de-una-serie-de-tiempo.html"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html"><i class="fa fa-check"></i><b>4</b> Análisis de descomposición de una serie de tiempo</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="análisis-de-descomposición-de-una-serie-de-tiempo.html"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#identificación-de-modelos"><i class="fa fa-check"></i><b>4.1</b> Identificación de modelos</a></li>
+<li class="chapter" data-level="4.2" data-path="análisis-de-descomposición-de-una-serie-de-tiempo.html"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#descomposición-de-la-serie-de-tiempo"><i class="fa fa-check"></i><b>4.2</b> Descomposición de la serie de tiempo</a></li>
+<li class="chapter" data-level="4.3" data-path="análisis-de-descomposición-de-una-serie-de-tiempo.html"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#estacionariedad"><i class="fa fa-check"></i><b>4.3</b> Estacionariedad</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Análisis de Series de Tiempo de Temperatura Superficial del Mar</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="análisis-de-descomposición-de-una-serie-de-tiempo" class="section level1 hasAnchor" number="4">
+<h1><span class="header-section-number">Chapter 4</span> Análisis de descomposición de una serie de tiempo<a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#análisis-de-descomposición-de-una-serie-de-tiempo" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>El análisis de descomposición en series de tiempo es una herramienta clave en la exploración y modelación de datos temporales. Su propósito principal es desglosar la serie en componentes fundamentales: tendencia, estacionalidad y residuales, permitiendo observar y estudiar cada uno por separado. Este enfoque es especialmente útil en series de tiempo donde existen patrones recurrentes y estructuras subyacentes que, de no ser identificadas, pueden distorsionar el análisis y reducir la precisión en la predicción de eventos futuros. La <strong>tendencia</strong> refleja el cambio a largo plazo en los datos, indicando si hay un crecimiento o disminución sostenido en la serie. La <strong>estacionalidad</strong> capta patrones cíclicos que se repiten en intervalos regulares, como los efectos mensuales o estacionales en el tiempo, mientras que los <strong>residuales</strong> contienen la variación aleatoria que no se explica por los otros dos componentes. Al aplicar la descomposición, se facilita el ajuste de modelos más precisos y se permite evaluar si los patrones observados son significativos o resultado del ruido.</p>
+<div id="identificación-de-modelos" class="section level2 hasAnchor" number="4.1">
+<h2><span class="header-section-number">4.1</span> Identificación de modelos<a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#identificación-de-modelos" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Existen tres tipos de modelos principales para la descomposición: aditivo, multiplicativo y logarítmico-multiplicativo.</p>
+<ul>
+<li><strong>Modelo Aditivo:</strong> Este modelo asume que la serie de tiempo es la suma de sus componentes y se utiliza cuando la variabilidad estacional es constante a lo largo del tiempo. Su expresión matemática es:</li>
+</ul>
+<p><span class="math display">\[\begin{equation}
+Y_t = T_t + S_t + e_t
+\end{equation}\]</span></p>
+<ul>
+<li><strong>Modelo Multiplicativo:</strong> En este modelo, la serie de tiempo es el producto de sus componentes y es adecuado cuando la estacionalidad aumenta o disminuye proporcionalmente a la tendencia. Su expresión matemática es:</li>
+</ul>
+<p><span class="math display">\[\begin{equation}
+Y_t = T_t * S_t * e_t
+\end{equation}\]</span></p>
+<ul>
+<li><strong>Modelo Logarítmico-Multiplicativo:</strong> Este modelo es una variante del multiplicativo en el que se aplica el logaritmo natural para transformar la serie en un modelo aditivo. Esto permite manejar series con tendencia y estacionalidad no lineales y reducir la heterocedasticidad. Su expresión se convierte en:</li>
+</ul>
+<p><span class="math display">\[\begin{equation}
+ln(Y_t) = ln(T_t) + ln(S_t) + ln(e_t)
+\end{equation}\]</span></p>
+<p>En este sentido, es fundamental identificar el modelo que mejor se ajusta a nuestra serie temporal de TSM. Para ello, se grafican los promedios anuales en función de las desviaciones estándar anuales, como se muestra en la figura 4.1. A partir del gráfico de dispersión obtenido, se observa que la mayoría de los datos se agrupan en una nube de puntos que sugiere la selección de un modelo aditivo, ya que en este caso la variabilidad de los datos se mantiene relativamente constante con el aumento del promedio. Sin embargo, también se identifican algunos puntos en el lado derecho de la gráfica que parecen indicar una tendencia creciente o representan datos atípicos. Por lo tanto, se llevará a cabo un análisis de descomposición que proporcione un criterio adicional para la selección del modelo.</p>
+<button type="button" onclick="toggleCode(&#39;code5&#39;);">
+Mostrar Código
+</button>
+<div id="code5" style="display:none;">
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-2" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-4" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;C:/Users/ASUS/OneDrive - PUJ Cali/2024_2/Series_de_tiempo/Unidad_1/bookdown-ST/df_tsm.RData&quot;</span>)</span>
+<span id="cb1-5"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-5" tabindex="-1"></a>datos <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">fecha =</span> df_tsm<span class="sc">$</span>Date,</span>
+<span id="cb1-6"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-6" tabindex="-1"></a>                           <span class="at">TSM =</span> df_tsm<span class="sc">$</span>tsm)  </span>
+<span id="cb1-7"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-7" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-8" tabindex="-1"></a>estadisticas_anuales <span class="ot">&lt;-</span> datos <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-9" tabindex="-1"></a>  <span class="fu">mutate</span>(año <span class="ot">=</span> <span class="fu">format</span>(<span class="fu">as.Date</span>(fecha), <span class="st">&quot;%Y&quot;</span>)) <span class="sc">%&gt;%</span>  <span class="co"># Extraer el año de la fecha</span></span>
+<span id="cb1-10"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-10" tabindex="-1"></a>  <span class="fu">group_by</span>(año) <span class="sc">%&gt;%</span></span>
+<span id="cb1-11"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-11" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb1-12"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-12" tabindex="-1"></a>    año <span class="ot">=</span> <span class="fu">first</span>(año),                             <span class="co"># Columna año</span></span>
+<span id="cb1-13"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-13" tabindex="-1"></a>    <span class="at">promedio_anual =</span> <span class="fu">mean</span>(TSM, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),   <span class="co"># Calcular promedio anual</span></span>
+<span id="cb1-14"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-14" tabindex="-1"></a>    <span class="at">desviacion_anual =</span> <span class="fu">sd</span>(TSM, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)    <span class="co"># Calcular desviación estándar anual</span></span>
+<span id="cb1-15"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-15" tabindex="-1"></a>  )</span>
+<span id="cb1-16"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-16" tabindex="-1"></a><span class="co"># Eliminar la última fila porque el año 2021 no esta completo</span></span>
+<span id="cb1-17"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-17" tabindex="-1"></a>estadisticas_anuales <span class="ot">&lt;-</span> estadisticas_anuales <span class="sc">%&gt;%</span></span>
+<span id="cb1-18"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-18" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="sc">-</span><span class="fu">n</span>())  <span class="co"># Elimina la última fila</span></span>
+<span id="cb1-19"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-19" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-20" tabindex="-1"></a><span class="co"># Gráfico </span></span>
+<span id="cb1-21"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-21" tabindex="-1"></a><span class="fu">ggplot</span>(estadisticas_anuales, <span class="fu">aes</span>(<span class="at">x =</span> promedio_anual, <span class="at">y =</span> desviacion_anual)) <span class="sc">+</span></span>
+<span id="cb1-22"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-22" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">&quot;blue&quot;</span>) <span class="sc">+</span></span>
+<span id="cb1-23"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-23" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Realción entre Promedio Anual y Desviación Estándar Anual de TSM&quot;</span>,</span>
+<span id="cb1-24"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-24" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Promedio Anual&quot;</span>,</span>
+<span id="cb1-25"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-25" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Desviación Estándar Anual&quot;</span>) <span class="sc">+</span></span>
+<span id="cb1-26"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-26" tabindex="-1"></a>   <span class="fu">coord_equal</span>() <span class="sc">+</span></span>
+<span id="cb1-27"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-27" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb1-28"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb1-28" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code></pre></div>
+</div>
+<script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:modelo1"></span>
+<img src="bookdown-ST_files/figure-html/modelo1-1.png" alt="*Realción entre Promedio Anual y Desviación Estándar Anual de Temperatura Superficial del Mar*" width="80%" />
+<p class="caption">
+Figure 4.1: <em>Realción entre Promedio Anual y Desviación Estándar Anual de Temperatura Superficial del Mar</em>
+</p>
+</div>
+</div>
+<div id="descomposición-de-la-serie-de-tiempo" class="section level2 hasAnchor" number="4.2">
+<h2><span class="header-section-number">4.2</span> Descomposición de la serie de tiempo<a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#descomposición-de-la-serie-de-tiempo" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>La descomposición de la serie temporal de la temperatura del agua se llevó a cabo utilizando tanto un modelo aditivo como un modelo multiplicativo, arrojando resultados que reflejan la naturaleza de los datos y las expectativas sobre su comportamiento. Los errores cuadráticos medios (MSE) calculados fueron de 6.12e−31 para el modelo aditivo (figura 4.2) y 4.82e−30 para el modelo multiplicativo (figura 4.3), indicando un mejor ajuste del modelo aditivo, dado que presenta un MSE más bajo. Esto es especialmente relevante en el contexto del cambio climático, donde se espera que la temperatura del agua exhiba una tendencia creciente a largo plazo, mientras que la amplitud de la estacionalidad se mantiene constante. El modelo aditivo es más apropiado en este caso, ya que permite representar una tendencia que se suma a los componentes estacionales sin alterar su amplitud. Por lo tanto, se eligió el modelo aditivo como el más adecuado para capturar de manera precisa la dinámica de la serie temporal, alineándose con las expectativas sobre el aumento gradual de la temperatura del agua y la constancia de los patrones estacionales.</p>
+<button type="button" onclick="toggleCode(&#39;code6&#39;);">
+Mostrar Código
+</button>
+<div id="code6" style="display:none;">
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-2"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-2" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb2-3"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-4"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-4" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb2-5"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-5" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb2-6"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-6" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span>
+<span id="cb2-7"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-7" tabindex="-1"></a><span class="fu">library</span>(grid)</span>
+<span id="cb2-8"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-8" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-9" tabindex="-1"></a><span class="co"># Convertir la columna TSM a un objeto de serie temporal</span></span>
+<span id="cb2-10"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-10" tabindex="-1"></a>tsm_ts <span class="ot">&lt;-</span> <span class="fu">ts</span>(df_tsm<span class="sc">$</span>tsm, <span class="at">start =</span> <span class="fu">c</span>(<span class="fu">year</span>(<span class="fu">min</span>(df_tsm<span class="sc">$</span>Date)), <span class="fu">month</span>(<span class="fu">min</span>(df_tsm<span class="sc">$</span>Date))), <span class="at">frequency =</span> <span class="dv">12</span>)  </span>
+<span id="cb2-11"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-11" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-12" tabindex="-1"></a><span class="co"># Descomposición de la serie</span></span>
+<span id="cb2-13"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-13" tabindex="-1"></a>aditivo <span class="ot">&lt;-</span> <span class="fu">decompose</span>(tsm_ts, <span class="at">type =</span> <span class="st">&quot;additive&quot;</span>)</span>
+<span id="cb2-14"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-14" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-15" tabindex="-1"></a><span class="co"># Filtrar las filas con datos completos</span></span>
+<span id="cb2-16"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-16" tabindex="-1"></a>datos_completos1 <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(<span class="fu">data.frame</span>(</span>
+<span id="cb2-17"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-17" tabindex="-1"></a>  <span class="at">Observados =</span> <span class="fu">as.numeric</span>(tsm_ts),</span>
+<span id="cb2-18"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-18" tabindex="-1"></a>  <span class="at">Predicciones =</span> aditivo<span class="sc">$</span>trend <span class="sc">*</span> aditivo<span class="sc">$</span>seasonal <span class="sc">*</span> aditivo<span class="sc">$</span>random</span>
+<span id="cb2-19"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-19" tabindex="-1"></a>))</span>
+<span id="cb2-20"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-20" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-21" tabindex="-1"></a><span class="co"># Calcular el MSE usando solo los datos completos</span></span>
+<span id="cb2-22"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-22" tabindex="-1"></a>mse_aditivo <span class="ot">&lt;-</span> <span class="fu">mean</span>((datos_completos1<span class="sc">$</span>Observados <span class="sc">-</span> datos_completos1<span class="sc">$</span>Predicciones)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb2-23"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-23" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-24" tabindex="-1"></a><span class="co"># Formatear el MSE en notación científica</span></span>
+<span id="cb2-25"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-25" tabindex="-1"></a>mse_aditivof<span class="ot">&lt;-</span> <span class="fu">formatC</span>(mse_aditivo, <span class="at">format =</span> <span class="st">&quot;e&quot;</span>, <span class="at">digits =</span> <span class="dv">2</span>)</span>
+<span id="cb2-26"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-26" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-27" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-28" tabindex="-1"></a><span class="co"># Crear un data frame para los componentes con fechas</span></span>
+<span id="cb2-29"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-29" tabindex="-1"></a>componentes1 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-30"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-30" tabindex="-1"></a>  <span class="at">Tiempo =</span> <span class="fu">as.Date</span>(<span class="fu">seq.Date</span>(<span class="at">from =</span> <span class="fu">as.Date</span>(<span class="fu">min</span>(df_tsm<span class="sc">$</span>Date)), <span class="at">by =</span> <span class="st">&quot;month&quot;</span>, <span class="at">length.out =</span> <span class="fu">length</span>(tsm_ts))),</span>
+<span id="cb2-31"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-31" tabindex="-1"></a>  <span class="at">Observados =</span> <span class="fu">as.numeric</span>(tsm_ts),</span>
+<span id="cb2-32"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-32" tabindex="-1"></a>  <span class="at">Tendencia =</span> <span class="fu">as.numeric</span>(aditivo<span class="sc">$</span>trend),</span>
+<span id="cb2-33"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-33" tabindex="-1"></a>  <span class="at">Estacionalidad =</span> <span class="fu">as.numeric</span>(aditivo<span class="sc">$</span>seasonal),</span>
+<span id="cb2-34"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-34" tabindex="-1"></a>  <span class="at">Residuos =</span> <span class="fu">as.numeric</span>(aditivo<span class="sc">$</span>random)</span>
+<span id="cb2-35"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-35" tabindex="-1"></a>)</span>
+<span id="cb2-36"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-36" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-37" tabindex="-1"></a><span class="co"># Graficar componentes utilizando ggplot2</span></span>
+<span id="cb2-38"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-38" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-39" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(componentes1, <span class="fu">aes</span>(<span class="at">x =</span> Tiempo)) <span class="sc">+</span></span>
+<span id="cb2-40"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-40" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Observados), <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-41"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-41" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">&quot;Observada&quot;</span>, <span class="at">x=</span><span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb2-42"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-42" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">&quot;5 years&quot;</span>, <span class="at">date_labels =</span> <span class="st">&quot;%Y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-43"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-43" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb2-44"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-44" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.x =</span> <span class="fu">element_blank</span>(), <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb2-45"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-45" tabindex="-1"></a></span>
+<span id="cb2-46"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-46" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(componentes1, <span class="fu">aes</span>(<span class="at">x =</span> Tiempo)) <span class="sc">+</span></span>
+<span id="cb2-47"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-47" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Tendencia), <span class="at">color =</span> <span class="st">&quot;red&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-48"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-48" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="cn">NULL</span>,<span class="at">y =</span> <span class="st">&quot;Tendencia&quot;</span>, <span class="at">x=</span><span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb2-49"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-49" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">&quot;5 years&quot;</span>, <span class="at">date_labels =</span> <span class="st">&quot;%Y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-50"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-50" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb2-51"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-51" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.x =</span> <span class="fu">element_blank</span>(), <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb2-52"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-52" tabindex="-1"></a></span>
+<span id="cb2-53"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-53" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(componentes1, <span class="fu">aes</span>(<span class="at">x =</span> Tiempo)) <span class="sc">+</span></span>
+<span id="cb2-54"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-54" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Estacionalidad), <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-55"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-55" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="cn">NULL</span>,<span class="at">y =</span> <span class="st">&quot;Estacionalidad&quot;</span>, <span class="at">x=</span><span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb2-56"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-56" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">&quot;5 years&quot;</span>, <span class="at">date_labels =</span> <span class="st">&quot;%Y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-57"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-57" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb2-58"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-58" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.x =</span> <span class="fu">element_blank</span>(), <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb2-59"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-59" tabindex="-1"></a></span>
+<span id="cb2-60"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-60" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(componentes1, <span class="fu">aes</span>(<span class="at">x =</span> Tiempo)) <span class="sc">+</span></span>
+<span id="cb2-61"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-61" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Residuos), <span class="at">color =</span> <span class="st">&quot;green&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-62"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-62" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="cn">NULL</span>,<span class="at">y =</span> <span class="st">&quot;Residuos&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Tiempo&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-63"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-63" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">&quot;5 years&quot;</span>, <span class="at">date_labels =</span> <span class="st">&quot;%Y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-64"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-64" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() </span>
+<span id="cb2-65"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-65" tabindex="-1"></a>  </span>
+<span id="cb2-66"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-66" tabindex="-1"></a></span>
+<span id="cb2-67"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-67" tabindex="-1"></a><span class="co"># Crear un título más grande y en negrita</span></span>
+<span id="cb2-68"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-68" tabindex="-1"></a>titulo <span class="ot">&lt;-</span> <span class="fu">textGrob</span>(</span>
+<span id="cb2-69"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-69" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="st">&quot;Descomposición Aditiva de la Serie de Tiempo - MSE:&quot;</span>, mse_aditivof),</span>
+<span id="cb2-70"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-70" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">14</span>, <span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>)  <span class="co"># Ajustar tamaño y negrita</span></span>
+<span id="cb2-71"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-71" tabindex="-1"></a>)</span>
+<span id="cb2-72"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-72" tabindex="-1"></a></span>
+<span id="cb2-73"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-73" tabindex="-1"></a><span class="co"># Ajustar el tamaño de la figura</span></span>
+<span id="cb2-74"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-74" tabindex="-1"></a><span class="co">#grid.newpage()  # Crear una nueva página de grid para ajustar el tamaño total de la figura</span></span>
+<span id="cb2-75"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-75" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb2-76"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-76" tabindex="-1"></a>  titulo, p, p1, p2, p3,</span>
+<span id="cb2-77"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-77" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">1</span>,</span>
+<span id="cb2-78"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-78" tabindex="-1"></a>  <span class="at">heights =</span> <span class="fu">c</span>(<span class="fl">0.17</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)  <span class="co"># Ajustar la altura del título</span></span>
+<span id="cb2-79"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb2-79" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:descomp1"></span>
+<img src="bookdown-ST_files/figure-html/descomp1-1.png" alt="*Descomposición de la serie de timepo de Temperatura Superficial del Mar empleando un modelo aditivo*" width="90%" />
+<p class="caption">
+Figure 4.2: <em>Descomposición de la serie de timepo de Temperatura Superficial del Mar empleando un modelo aditivo</em>
+</p>
+</div>
+<button type="button" onclick="toggleCode(&#39;code7&#39;);">
+Mostrar Código
+</button>
+<div id="code7" style="display:none;">
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb3-2"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-2" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb3-3"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-4"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-4" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb3-5"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-5" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb3-6"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-6" tabindex="-1"></a><span class="fu">library</span>(gridExtra)</span>
+<span id="cb3-7"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-7" tabindex="-1"></a><span class="fu">library</span>(grid)</span>
+<span id="cb3-8"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-8" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-9" tabindex="-1"></a><span class="co"># Convertir la columna TSM a un objeto de serie temporal</span></span>
+<span id="cb3-10"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-10" tabindex="-1"></a>tsm_ts <span class="ot">&lt;-</span> <span class="fu">ts</span>(df_tsm<span class="sc">$</span>tsm, <span class="at">start =</span> <span class="fu">c</span>(<span class="fu">year</span>(<span class="fu">min</span>(df_tsm<span class="sc">$</span>Date)), <span class="fu">month</span>(<span class="fu">min</span>(df_tsm<span class="sc">$</span>Date))), <span class="at">frequency =</span> <span class="dv">12</span>)  </span>
+<span id="cb3-11"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-11" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-12" tabindex="-1"></a><span class="co"># Descomposición de la serie</span></span>
+<span id="cb3-13"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-13" tabindex="-1"></a>multiplicativo <span class="ot">&lt;-</span> <span class="fu">decompose</span>(tsm_ts, <span class="at">type =</span> <span class="st">&quot;multiplicative&quot;</span>)</span>
+<span id="cb3-14"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-14" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-15" tabindex="-1"></a><span class="co"># Filtrar las filas con datos completos</span></span>
+<span id="cb3-16"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-16" tabindex="-1"></a>datos_completos <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(<span class="fu">data.frame</span>(</span>
+<span id="cb3-17"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-17" tabindex="-1"></a>  <span class="at">Observados =</span> <span class="fu">as.numeric</span>(tsm_ts),</span>
+<span id="cb3-18"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-18" tabindex="-1"></a>  <span class="at">Predicciones =</span> multiplicativo<span class="sc">$</span>trend <span class="sc">*</span> multiplicativo<span class="sc">$</span>seasonal <span class="sc">*</span> multiplicativo<span class="sc">$</span>random</span>
+<span id="cb3-19"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-19" tabindex="-1"></a>))</span>
+<span id="cb3-20"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-20" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-21" tabindex="-1"></a><span class="co"># Calcular el MSE usando solo los datos completos</span></span>
+<span id="cb3-22"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-22" tabindex="-1"></a>mse_multiplicativo <span class="ot">&lt;-</span> <span class="fu">mean</span>((datos_completos<span class="sc">$</span>Observados <span class="sc">-</span> datos_completos<span class="sc">$</span>Predicciones)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb3-23"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-23" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-24" tabindex="-1"></a><span class="co"># Formatear el MSE en notación científica</span></span>
+<span id="cb3-25"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-25" tabindex="-1"></a>mse_multiplicativof<span class="ot">&lt;-</span> <span class="fu">formatC</span>(mse_multiplicativo, <span class="at">format =</span> <span class="st">&quot;e&quot;</span>, <span class="at">digits =</span> <span class="dv">2</span>)</span>
+<span id="cb3-26"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-26" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-27" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-28" tabindex="-1"></a><span class="co"># Crear un data frame para los componentes con fechas</span></span>
+<span id="cb3-29"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-29" tabindex="-1"></a>componentes <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb3-30"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-30" tabindex="-1"></a>  <span class="at">Tiempo =</span> <span class="fu">as.Date</span>(<span class="fu">seq.Date</span>(<span class="at">from =</span> <span class="fu">as.Date</span>(<span class="fu">min</span>(df_tsm<span class="sc">$</span>Date)), <span class="at">by =</span> <span class="st">&quot;month&quot;</span>, <span class="at">length.out =</span> <span class="fu">length</span>(tsm_ts))),</span>
+<span id="cb3-31"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-31" tabindex="-1"></a>  <span class="at">Observados =</span> <span class="fu">as.numeric</span>(tsm_ts),</span>
+<span id="cb3-32"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-32" tabindex="-1"></a>  <span class="at">Tendencia =</span> <span class="fu">as.numeric</span>(multiplicativo<span class="sc">$</span>trend),</span>
+<span id="cb3-33"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-33" tabindex="-1"></a>  <span class="at">Estacionalidad =</span> <span class="fu">as.numeric</span>(multiplicativo<span class="sc">$</span>seasonal),</span>
+<span id="cb3-34"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-34" tabindex="-1"></a>  <span class="at">Residuos =</span> <span class="fu">as.numeric</span>(multiplicativo<span class="sc">$</span>random)</span>
+<span id="cb3-35"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-35" tabindex="-1"></a>)</span>
+<span id="cb3-36"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-36" tabindex="-1"></a></span>
+<span id="cb3-37"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-37" tabindex="-1"></a><span class="co"># Graficar componentes utilizando ggplot2</span></span>
+<span id="cb3-38"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-38" tabindex="-1"></a></span>
+<span id="cb3-39"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-39" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(componentes, <span class="fu">aes</span>(<span class="at">x =</span> Tiempo)) <span class="sc">+</span></span>
+<span id="cb3-40"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-40" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Observados), <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb3-41"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-41" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">&quot;Observada&quot;</span>, <span class="at">x=</span><span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb3-42"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-42" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">&quot;5 years&quot;</span>, <span class="at">date_labels =</span> <span class="st">&quot;%Y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-43"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-43" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb3-44"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-44" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.x =</span> <span class="fu">element_blank</span>(), <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb3-45"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-45" tabindex="-1"></a></span>
+<span id="cb3-46"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-46" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(componentes, <span class="fu">aes</span>(<span class="at">x =</span> Tiempo)) <span class="sc">+</span></span>
+<span id="cb3-47"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-47" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Tendencia), <span class="at">color =</span> <span class="st">&quot;red&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb3-48"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-48" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="cn">NULL</span>,<span class="at">y =</span> <span class="st">&quot;Tendencia&quot;</span>, <span class="at">x=</span><span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb3-49"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-49" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">&quot;5 years&quot;</span>, <span class="at">date_labels =</span> <span class="st">&quot;%Y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-50"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-50" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb3-51"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-51" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.x =</span> <span class="fu">element_blank</span>(), <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb3-52"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-52" tabindex="-1"></a></span>
+<span id="cb3-53"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-53" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(componentes, <span class="fu">aes</span>(<span class="at">x =</span> Tiempo)) <span class="sc">+</span></span>
+<span id="cb3-54"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-54" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Estacionalidad), <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb3-55"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-55" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="cn">NULL</span>,<span class="at">y =</span> <span class="st">&quot;Estacionalidad&quot;</span>, <span class="at">x=</span><span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb3-56"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-56" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">&quot;5 years&quot;</span>, <span class="at">date_labels =</span> <span class="st">&quot;%Y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-57"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-57" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb3-58"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-58" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.x =</span> <span class="fu">element_blank</span>(), <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb3-59"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-59" tabindex="-1"></a></span>
+<span id="cb3-60"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-60" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(componentes, <span class="fu">aes</span>(<span class="at">x =</span> Tiempo)) <span class="sc">+</span></span>
+<span id="cb3-61"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-61" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Residuos), <span class="at">color =</span> <span class="st">&quot;green&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb3-62"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-62" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="cn">NULL</span>,<span class="at">y =</span> <span class="st">&quot;Residuos&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Tiempo&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-63"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-63" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">&quot;5 years&quot;</span>, <span class="at">date_labels =</span> <span class="st">&quot;%Y&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-64"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-64" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() </span>
+<span id="cb3-65"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-65" tabindex="-1"></a>  </span>
+<span id="cb3-66"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-66" tabindex="-1"></a></span>
+<span id="cb3-67"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-67" tabindex="-1"></a><span class="co"># Crear un título más grande y en negrita</span></span>
+<span id="cb3-68"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-68" tabindex="-1"></a>titulo <span class="ot">&lt;-</span> <span class="fu">textGrob</span>(</span>
+<span id="cb3-69"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-69" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="st">&quot;Descomposición Multiplicativa de la Serie de Tiempo - MSE:&quot;</span>, mse_multiplicativof),</span>
+<span id="cb3-70"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-70" tabindex="-1"></a>  <span class="at">gp =</span> <span class="fu">gpar</span>(<span class="at">fontsize =</span> <span class="dv">14</span>, <span class="at">fontface =</span> <span class="st">&quot;bold&quot;</span>)  <span class="co"># Ajustar tamaño y negrita</span></span>
+<span id="cb3-71"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-71" tabindex="-1"></a>)</span>
+<span id="cb3-72"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-72" tabindex="-1"></a></span>
+<span id="cb3-73"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-73" tabindex="-1"></a><span class="co"># Ajustar el tamaño de la figura</span></span>
+<span id="cb3-74"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-74" tabindex="-1"></a><span class="co">#grid.newpage()  # Crear una nueva página de grid para ajustar el tamaño total de la figura</span></span>
+<span id="cb3-75"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-75" tabindex="-1"></a><span class="fu">grid.arrange</span>(</span>
+<span id="cb3-76"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-76" tabindex="-1"></a>  titulo, p, p1, p2, p3,</span>
+<span id="cb3-77"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-77" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">1</span>,</span>
+<span id="cb3-78"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-78" tabindex="-1"></a>  <span class="at">heights =</span> <span class="fu">c</span>(<span class="fl">0.17</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)  <span class="co"># Ajustar la altura del título</span></span>
+<span id="cb3-79"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb3-79" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:descomp3"></span>
+<img src="bookdown-ST_files/figure-html/descomp3-1.png" alt="*Descomposición de la serie de timepo de Temperatura Superficial del Mar empleando un modelo multiplicativo*" width="90%" />
+<p class="caption">
+Figure 4.3: <em>Descomposición de la serie de timepo de Temperatura Superficial del Mar empleando un modelo multiplicativo</em>
+</p>
+</div>
+</div>
+<div id="estacionariedad" class="section level2 hasAnchor" number="4.3">
+<h2><span class="header-section-number">4.3</span> Estacionariedad<a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#estacionariedad" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Determinar si una serie de tiempo es estacionaria es clave, ya que muchos modelos estadísticos y de aprendizaje automático requieren que los datos sean estacionarios para ofrecer resultados precisos y válidos. Una serie estacionaria tiene propiedades estadísticas constantes a lo largo del tiempo, como la media y la varianza, lo que facilita la predicción y el análisis. Para evaluar si la serie de tiempo de la temperatura superficial del mar es estacionaria, se abordarán dos enfoques: un análisis gráfico y la realización de pruebas de hipótesis. En la primera parte, se calculó la media y la varianza anuales, obteniendo una varianza relativamente constante y una tendencia algo confusa, que al inicio parece estable, pero sugiere una tendencia creciente al final de la serie. Este análisis visual no permitió una conclusión clara sobre la estacionariedad de la serie, lo que llevó a implementar dos pruebas de hipótesis conocidas. La primera fue la Prueba de Dickey-Fuller Aumentada (ADF), donde la hipótesis nula establece que la serie tiene una raíz unitaria (no es estacionaria). Un valor p menor a 0.05 indica que se puede rechazar la hipótesis nula, sugiriendo que la serie es estacionaria. Por otro lado, la segunda prueba fue el test KPSS, cuya hipótesis nula postula que la serie es estacionaria. Con un valor p menor 0.05, no se puede rechazar la hipótesis nula, lo que sugiere que la serie es estacionaria. La tabla 4.1 que se muestra, un resumen de los resultados de las pruebas realizadas concluyendo que la serie de tiempo analizada es estacionaria.</p>
+<button type="button" onclick="toggleCode(&#39;code8&#39;);">
+Mostrar Código
+</button>
+<div id="code8" style="display:none;">
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-1" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb4-2"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-2" tabindex="-1"></a><span class="fu">library</span>(tseries)</span>
+<span id="cb4-3"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-3" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb4-4"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-4" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb4-5"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-5" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb4-6"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-6" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb4-7"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-8" tabindex="-1"></a>estadisticas_anuales2 <span class="ot">&lt;-</span> datos <span class="sc">%&gt;%</span></span>
+<span id="cb4-9"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-9" tabindex="-1"></a>  <span class="fu">mutate</span>(año <span class="ot">=</span> <span class="fu">format</span>(<span class="fu">as.Date</span>(fecha), <span class="st">&quot;%Y&quot;</span>)) <span class="sc">%&gt;%</span>  <span class="co"># Extraer el año de la fecha</span></span>
+<span id="cb4-10"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-10" tabindex="-1"></a>  <span class="fu">group_by</span>(año) <span class="sc">%&gt;%</span></span>
+<span id="cb4-11"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-11" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb4-12"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-12" tabindex="-1"></a>    año <span class="ot">=</span> <span class="fu">first</span>(año),                             <span class="co"># Columna año</span></span>
+<span id="cb4-13"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-13" tabindex="-1"></a>    <span class="at">Media =</span> <span class="fu">mean</span>(TSM, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),   <span class="co"># Calcular promedio anual</span></span>
+<span id="cb4-14"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-14" tabindex="-1"></a>    <span class="at">Varianza =</span> <span class="fu">var</span>(TSM, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)    <span class="co"># Calcular varianza anual</span></span>
+<span id="cb4-15"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-15" tabindex="-1"></a>  )</span>
+<span id="cb4-16"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-16" tabindex="-1"></a><span class="co"># Eliminar la última fila porque el año 2021 no está completo</span></span>
+<span id="cb4-17"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-17" tabindex="-1"></a>estadisticas_anuales2 <span class="ot">&lt;-</span> estadisticas_anuales2 <span class="sc">%&gt;%</span></span>
+<span id="cb4-18"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-18" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="sc">-</span><span class="fu">n</span>())  <span class="co"># Elimina la última fila</span></span>
+<span id="cb4-19"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-19" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-20" tabindex="-1"></a><span class="co"># Convertir &#39;año&#39; a tipo numérico para la gráfica</span></span>
+<span id="cb4-21"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-21" tabindex="-1"></a>estadisticas_anuales2<span class="sc">$</span>año <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(estadisticas_anuales2<span class="sc">$</span>año)</span>
+<span id="cb4-22"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-22" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-23" tabindex="-1"></a><span class="co"># Graficar la media</span></span>
+<span id="cb4-24"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-24" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(estadisticas_anuales2, <span class="fu">aes</span>(<span class="at">x =</span> año)) <span class="sc">+</span></span>
+<span id="cb4-25"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-25" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Media), <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-26"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-26" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="st">&quot;Cálculo de media por año&quot;</span>,<span class="at">y =</span> <span class="st">&quot;Media&quot;</span>, <span class="at">x=</span><span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb4-27"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-27" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fu">min</span>(estadisticas_anuales2<span class="sc">$</span>año), </span>
+<span id="cb4-28"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-28" tabindex="-1"></a>                                  <span class="fu">max</span>(estadisticas_anuales2<span class="sc">$</span>año), <span class="at">by =</span> <span class="dv">5</span>)) <span class="sc">+</span></span>
+<span id="cb4-29"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-29" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb4-30"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-30" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title.x =</span> <span class="fu">element_blank</span>(), <span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())<span class="sc">+</span></span>
+<span id="cb4-31"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-31" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span>
+<span id="cb4-32"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-32" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-33" tabindex="-1"></a><span class="co"># Graficar la varianza</span></span>
+<span id="cb4-34"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-34" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(estadisticas_anuales2, <span class="fu">aes</span>(<span class="at">x =</span> año)) <span class="sc">+</span></span>
+<span id="cb4-35"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-35" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Varianza), <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-36"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-36" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="st">&quot;Cálculo de varianza por año &quot;</span>,<span class="at">y =</span> <span class="st">&quot;Varianza&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Tiempo&quot;</span>) <span class="sc">+</span></span>
+<span id="cb4-37"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-37" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fu">min</span>(estadisticas_anuales2<span class="sc">$</span>año), </span>
+<span id="cb4-38"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-38" tabindex="-1"></a>                                  <span class="fu">max</span>(estadisticas_anuales2<span class="sc">$</span>año), <span class="at">by =</span> <span class="dv">5</span>)) <span class="sc">+</span></span>
+<span id="cb4-39"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-39" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb4-40"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-40" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span>
+<span id="cb4-41"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-41" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-42" tabindex="-1"></a><span class="co"># Combinar los gráficos en un solo layout</span></span>
+<span id="cb4-43"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-43" tabindex="-1"></a>combined_plot <span class="ot">&lt;-</span> p1 <span class="sc">/</span> p2</span>
+<span id="cb4-44"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-44" tabindex="-1"></a>combined_plot</span>
+<span id="cb4-45"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-45" tabindex="-1"></a></span>
+<span id="cb4-46"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-46" tabindex="-1"></a><span class="co"># Prueba de Dickey-Fuller Aumentada (ADF)</span></span>
+<span id="cb4-47"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-47" tabindex="-1"></a>resultado_adf <span class="ot">&lt;-</span> <span class="fu">adf.test</span>(datos<span class="sc">$</span>TSM, <span class="at">alternative =</span> <span class="st">&quot;stationary&quot;</span>)</span>
+<span id="cb4-48"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-48" tabindex="-1"></a></span>
+<span id="cb4-49"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-49" tabindex="-1"></a><span class="co"># Prueba KPSS</span></span>
+<span id="cb4-50"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-50" tabindex="-1"></a>resultado_kpss <span class="ot">&lt;-</span> <span class="fu">kpss.test</span>(datos<span class="sc">$</span>TSM, <span class="at">null =</span> <span class="st">&quot;Level&quot;</span>)</span>
+<span id="cb4-51"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-51" tabindex="-1"></a></span>
+<span id="cb4-52"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-52" tabindex="-1"></a><span class="co"># Crear un dataframe para los resultados</span></span>
+<span id="cb4-53"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-53" tabindex="-1"></a>resultados_tabla <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-54"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-54" tabindex="-1"></a>  <span class="at">Prueba =</span> <span class="fu">c</span>(<span class="st">&quot;Dickey-Fuller Aumentada&quot;</span>, <span class="st">&quot;KPSS&quot;</span>),</span>
+<span id="cb4-55"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-55" tabindex="-1"></a>  Estadístico <span class="ot">=</span> <span class="fu">c</span>(resultado_adf<span class="sc">$</span>statistic, resultado_kpss<span class="sc">$</span>statistic),</span>
+<span id="cb4-56"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-56" tabindex="-1"></a>  <span class="at">p_value =</span> <span class="fu">c</span>(resultado_adf<span class="sc">$</span>p.value, resultado_kpss<span class="sc">$</span>p.value),</span>
+<span id="cb4-57"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-57" tabindex="-1"></a>  Hipótesis<span class="at">_Nula =</span> <span class="fu">c</span>(<span class="st">&quot;Serie no estacionaria&quot;</span>, <span class="st">&quot;Serie estacionaria&quot;</span>)</span>
+<span id="cb4-58"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-58" tabindex="-1"></a>)</span>
+<span id="cb4-59"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-59" tabindex="-1"></a></span>
+<span id="cb4-60"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-60" tabindex="-1"></a><span class="co"># Mostrar la tabla de resultados</span></span>
+<span id="cb4-61"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-61" tabindex="-1"></a>resultados_tabla <span class="sc">%&gt;%</span></span>
+<span id="cb4-62"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-62" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">&quot;html&quot;</span>, <span class="at">caption =</span> <span class="st">&quot;Resultados de las Pruebas de Estacionariedad&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-63"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#cb4-63" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="st">&quot;striped&quot;</span>, <span class="at">full_width =</span> F)</span></code></pre></div>
+</div>
+<script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:estacion1"></span>
+<img src="bookdown-ST_files/figure-html/estacion1-1.png" alt="*Análisis gráfico de la estacionariedad de la serie de tiempo de Temperatura superficial del mar.*" width="80%" />
+<p class="caption">
+Figure 4.4: <em>Análisis gráfico de la estacionariedad de la serie de tiempo de Temperatura superficial del mar.</em>
+</p>
+</div>
+<table class="table table-striped" style="color: black; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:estacion1">Table 4.1: </span>Resultados de las Pruebas de Estacionariedad
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+Prueba
+</th>
+<th style="text-align:right;">
+Estadístico
+</th>
+<th style="text-align:right;">
+p_value
+</th>
+<th style="text-align:left;">
+Hipótesis_Nula
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Dickey-Fuller
+</td>
+<td style="text-align:left;">
+Dickey-Fuller Aumentada
+</td>
+<td style="text-align:right;">
+-5.5912645
+</td>
+<td style="text-align:right;">
+0.0100000
+</td>
+<td style="text-align:left;">
+Serie no estacionaria
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KPSS Level
+</td>
+<td style="text-align:left;">
+KPSS
+</td>
+<td style="text-align:right;">
+0.4279125
+</td>
+<td style="text-align:right;">
+0.0651239
+</td>
+<td style="text-align:left;">
+Serie estacionaria
+</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="exploración-de-la-serie-de-tiempo.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/rstudio/bookdown-demo/edit/master/03_descomposicion.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["bookdown-ST.pdf", "bookdown-ST.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

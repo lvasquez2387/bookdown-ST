@@ -22,7 +22,7 @@
 
 
 
-<meta name="date" content="2024-10-30" />
+<meta name="date" content="2024-11-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -139,7 +139,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="./">A Minimal Book Example</a></li>
 
 <li class="divider"></li>
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Contexto de la propuesta</a></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Contexto de la propuestas</a></li>
 <li class="chapter" data-level="2" data-path="fuente-de-datos.html"><a href="fuente-de-datos.html"><i class="fa fa-check"></i><b>2</b> Fuente de Datos</a></li>
 <li class="chapter" data-level="3" data-path="exploración-de-la-serie-de-tiempo.html"><a href="exploración-de-la-serie-de-tiempo.html"><i class="fa fa-check"></i><b>3</b> Exploración de la Serie de Tiempo</a>
 <ul>
@@ -190,7 +190,47 @@ Y_t = T_t * S_t * e_t
 <p><span class="math display">\[\begin{equation}
 ln(Y_t) = ln(T_t) + ln(S_t) + ln(e_t)
 \end{equation}\]</span></p>
-<p>.</p>
+<p>En este sentido, es fundamental identificar el modelo que mejor se ajusta a nuestra serie temporal de TSM. Para ello, se grafican los promedios anuales en función de las desviaciones estándar anuales, como se muestra en la figura 4.1. A partir del gráfico de dispersión obtenido, se observa que la mayoría de los datos se agrupan en una nube de puntos que sugiere la selección de un modelo aditivo, ya que en este caso la variabilidad de los datos se mantiene relativamente constante con el aumento del promedio. Sin embargo, también se identifican algunos puntos en el lado derecho de la gráfica que parecen indicar una tendencia creciente o representan datos atípicos. Por lo tanto, se llevará a cabo un análisis de descomposición que proporcione un criterio adicional para la selección del modelo.</p>
+<button type="button" onclick="toggleCode(&#39;code5&#39;);">
+Mostrar Código
+</button>
+<div id="code5" style="display:none;">
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="análisis-de-descomposición.html#cb1-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="análisis-de-descomposición.html#cb1-2" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="análisis-de-descomposición.html#cb1-3" tabindex="-1"></a><span class="fu">load</span>(<span class="st">&quot;C:/Users/ASUS/OneDrive - PUJ Cali/2024_2/Series_de_tiempo/Unidad_1/bookdown-ST/data.RData&quot;</span>)</span>
+<span id="cb1-4"><a href="análisis-de-descomposición.html#cb1-4" tabindex="-1"></a>datos <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">fecha =</span> df_tsm<span class="sc">$</span>Date,</span>
+<span id="cb1-5"><a href="análisis-de-descomposición.html#cb1-5" tabindex="-1"></a>                           <span class="at">TSM =</span> df_tsm<span class="sc">$</span>tsm) </span>
+<span id="cb1-6"><a href="análisis-de-descomposición.html#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="análisis-de-descomposición.html#cb1-7" tabindex="-1"></a>estadisticas_anuales <span class="ot">&lt;-</span> datos <span class="sc">%&gt;%</span></span>
+<span id="cb1-8"><a href="análisis-de-descomposición.html#cb1-8" tabindex="-1"></a>  <span class="fu">mutate</span>(año <span class="ot">=</span> <span class="fu">format</span>(<span class="fu">as.Date</span>(fecha), <span class="st">&quot;%Y&quot;</span>)) <span class="sc">%&gt;%</span>  <span class="co"># Extraer el año de la fecha</span></span>
+<span id="cb1-9"><a href="análisis-de-descomposición.html#cb1-9" tabindex="-1"></a>  <span class="fu">group_by</span>(año) <span class="sc">%&gt;%</span></span>
+<span id="cb1-10"><a href="análisis-de-descomposición.html#cb1-10" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb1-11"><a href="análisis-de-descomposición.html#cb1-11" tabindex="-1"></a>    año <span class="ot">=</span> <span class="fu">first</span>(año),                             <span class="co"># Columna año</span></span>
+<span id="cb1-12"><a href="análisis-de-descomposición.html#cb1-12" tabindex="-1"></a>    <span class="at">promedio_anual =</span> <span class="fu">mean</span>(TSM, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),   <span class="co"># Calcular promedio anual</span></span>
+<span id="cb1-13"><a href="análisis-de-descomposición.html#cb1-13" tabindex="-1"></a>    <span class="at">desviacion_anual =</span> <span class="fu">sd</span>(TSM, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)    <span class="co"># Calcular desviación estándar anual</span></span>
+<span id="cb1-14"><a href="análisis-de-descomposición.html#cb1-14" tabindex="-1"></a>  )</span>
+<span id="cb1-15"><a href="análisis-de-descomposición.html#cb1-15" tabindex="-1"></a><span class="co"># Eliminar la última fila porque el año 2021 no esta completo</span></span>
+<span id="cb1-16"><a href="análisis-de-descomposición.html#cb1-16" tabindex="-1"></a>estadisticas_anuales <span class="ot">&lt;-</span> estadisticas_anuales <span class="sc">%&gt;%</span></span>
+<span id="cb1-17"><a href="análisis-de-descomposición.html#cb1-17" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="sc">-</span><span class="fu">n</span>())  <span class="co"># Elimina la última fila</span></span>
+<span id="cb1-18"><a href="análisis-de-descomposición.html#cb1-18" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="análisis-de-descomposición.html#cb1-19" tabindex="-1"></a><span class="co"># Gráfico </span></span>
+<span id="cb1-20"><a href="análisis-de-descomposición.html#cb1-20" tabindex="-1"></a><span class="fu">ggplot</span>(estadisticas_anuales, <span class="fu">aes</span>(<span class="at">x =</span> promedio_anual, <span class="at">y =</span> desviacion_anual)) <span class="sc">+</span></span>
+<span id="cb1-21"><a href="análisis-de-descomposición.html#cb1-21" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">&quot;blue&quot;</span>) <span class="sc">+</span></span>
+<span id="cb1-22"><a href="análisis-de-descomposición.html#cb1-22" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Realción entre Promedio Anual y Desviación Estándar Anual de TSM&quot;</span>,</span>
+<span id="cb1-23"><a href="análisis-de-descomposición.html#cb1-23" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Promedio Anual&quot;</span>,</span>
+<span id="cb1-24"><a href="análisis-de-descomposición.html#cb1-24" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Desviación Estándar Anual&quot;</span>) <span class="sc">+</span></span>
+<span id="cb1-25"><a href="análisis-de-descomposición.html#cb1-25" tabindex="-1"></a>   <span class="fu">coord_equal</span>() <span class="sc">+</span></span>
+<span id="cb1-26"><a href="análisis-de-descomposición.html#cb1-26" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb1-27"><a href="análisis-de-descomposición.html#cb1-27" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>))</span></code></pre></div>
+</div>
+<script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:modelo1"></span>
+<img src="bookdown-ST_files/figure-html/modelo1-1.png" alt="*Realción entre Promedio Anual y Desviación Estándar Anual de Temperatura Superficial del Mar*" width="80%" />
+<p class="caption">
+Figure 4.1: <em>Realción entre Promedio Anual y Desviación Estándar Anual de Temperatura Superficial del Mar</em>
+</p>
+</div>
 
 </div>
             </section>

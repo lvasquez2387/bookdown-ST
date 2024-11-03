@@ -72,13 +72,18 @@ df_tsm <- data.frame(
 # Grafica exploratoria inicial
 df_tsm$Date <- as.Date(df_tsm$tiempo, origin = "1970-01-01")
 
+save(df_tsm, file = "C:/Users/ASUS/OneDrive - PUJ Cali/2024_2/Series_de_tiempo/Unidad_1/bookdown-ST/df_tsm.RData")
+
 # Graficar
-ggplot(df_tsm, aes(x = Date, y = tsm)) +
-  geom_line(color = "blue") +
+ggplot(df_tsm, aes(x = Date)) +
+  geom_line(aes(y = tsm),color = "blue",alpha = 0.5, size=1) +
   labs(title = "Serie Temporal Original de Temperatura Superficial del Mar", 
        x = "Fecha", y = "Temperatura (°C)") +
   scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
-  theme(plot.title = element_text(hjust = 0.5))
+   theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.caption = element_text(hjust = 0.5))
+
 ```
 
 El promedio móvil, el rezago y la estacionalidad son técnicas fundamentales en el análisis de series temporales, utilizadas para identificar y entender los patrones subyacentes en los datos. El promedio móvil se aplica para suavizar las fluctuaciones a corto plazo, proporcionando una visión más clara de las tendencias a largo plazo al promediar valores consecutivos. El rezago, por su parte, implica desplazar la serie en el tiempo para analizar cómo los valores pasados influyen en los presentes, lo cual es esencial para modelar la autocorrelación y predecir futuros comportamientos. Finalmente, la estacionalidad se refiere a los patrones recurrentes en intervalos específicos (por ejemplo, mensual o anual), y su análisis permite identificar ciclos repetitivos que pueden ser cruciales para la toma de decisiones y el pronóstico de eventos futuros.
@@ -107,8 +112,8 @@ df_mov_avg <- df_tsm %>% filter(!is.na(mov_avg_tsm))
 
 # Crear un gráfico de la serie temporal y la media móvil
 ggplot(df_tsm, aes(x = Date)) +
-  geom_line(aes(y = tsm), color = "blue", alpha = 0.5) +
-  geom_line(aes(y = mov_avg_tsm), color = "red") +
+  geom_line(aes(y = tsm), color = "blue", alpha = 0.5, size=1) +
+  geom_line(aes(y = mov_avg_tsm), color = "red", alpha = 0.5, size=1) +
   labs(title = "TSM y Media Móvil de 12 Meses",
        x = "Fecha",
        y = "TSM",
@@ -138,8 +143,8 @@ df_mov_avg <- df_tsm %>% filter(!is.na(mov_avg_tsm))
 
 # Crear un gráfico de la serie temporal y la media móvil
 ggplot(df_tsm, aes(x = Date)) +
-  geom_line(aes(y = tsm), color = "blue", alpha = 0.5) +
-  geom_line(aes(y = mov_avg_tsm), color = "red") +
+  geom_line(aes(y = tsm), color = "blue", alpha = 0.5, size=1) +
+  geom_line(aes(y = mov_avg_tsm), color = "red", alpha = 0.5, size=1) +
   labs(title = "TSM y Media Móvil de 12 Meses",
        x = "Fecha",
        y = "TSM",
@@ -183,7 +188,7 @@ df_long <- df_lag %>%
 
 # Gráfico 1: TSM y TSM_lag1
 plot1 <- ggplot(df_long %>% filter(Lag %in% c("tsm", "TSM_lag1")), aes(x = Date)) +  # Cambia el eje x a 'fecha'
-  geom_line(aes(y = Value, color = Lag)) +
+  geom_line(aes(y = Value, color = Lag), alpha = 0.5, size=1) +
   labs(title = "Comparativa de TSM y TSM Lag 1",
        x = "Fecha",
        y = "Temperatura Superficial del Mar") +
@@ -194,7 +199,7 @@ plot1 <- ggplot(df_long %>% filter(Lag %in% c("tsm", "TSM_lag1")), aes(x = Date)
 
 # Gráfico 2: TSM y TSM_lag2
 plot2 <- ggplot(df_long %>% filter(Lag %in% c("tsm", "TSM_lag2")), aes(x = Date)) +  # Cambia el eje x a 'fecha'
-  geom_line(aes(y = Value, color = Lag)) +
+  geom_line(aes(y = Value, color = Lag), alpha = 0.5, size=1) +
   labs(title = "Comparativa de TSM y TSM Lag 2",
        x = "Fecha",
        y = "Temperatura Superficial del Mar") +
@@ -234,8 +239,8 @@ df_long <- df_lag %>%
                values_to = "Value")
 
 # Gráfico 1: TSM y TSM_lag1
-plot1 <- ggplot(df_long %>% filter(Lag %in% c("tsm", "TSM_lag1")), aes(x = Date)) +  # Cambia el eje x a 'fecha'
-  geom_line(aes(y = Value, color = Lag)) +
+plot1 <- ggplot(df_long %>% filter(Lag %in% c("tsm", "TSM_lag1")), aes(x = Date)) +  
+  geom_line(aes(y = Value, color = Lag), alpha = 0.5, size=1) +
   labs(title = "Comparativa de TSM y TSM Lag 1",
        x = "Fecha",
        y = "Temperatura Superficial del Mar") +
@@ -245,8 +250,8 @@ plot1 <- ggplot(df_long %>% filter(Lag %in% c("tsm", "TSM_lag1")), aes(x = Date)
   theme(plot.title = element_text(hjust = 0.5))
 
 # Gráfico 2: TSM y TSM_lag2
-plot2 <- ggplot(df_long %>% filter(Lag %in% c("tsm", "TSM_lag2")), aes(x = Date)) +  # Cambia el eje x a 'fecha'
-  geom_line(aes(y = Value, color = Lag)) +
+plot2 <- ggplot(df_long %>% filter(Lag %in% c("tsm", "TSM_lag2")), aes(x = Date)) +  
+  geom_line(aes(y = Value, color = Lag), alpha = 0.5, size=1) +
   labs(title = "Comparativa de TSM y TSM Lag 2",
        x = "Fecha",
        y = "Temperatura Superficial del Mar") +
@@ -289,8 +294,8 @@ seasonal_df$seasonal_adjusted <- seasonal_df$Seasonal + mean_tsm
 
 # Gráfico de TSM y Estacionalidad
 ggplot(seasonal_df, aes(x = fecha)) +
-  geom_line(aes(y = TSM, color = "TSM")) +
-  geom_line(aes(y = seasonal_adjusted, color = "Componente Estacional")) +
+  geom_line(aes(y = TSM, color = "TSM"), alpha = 0.5, size=1) +
+  geom_line(aes(y = seasonal_adjusted, color = "Componente Estacional"), alpha = 0.5, size=1) +
   labs(title = "Temperatura Superficial del Mar y su Componente Estacional",
        x = "Fecha",
        y = "Temperatura Superficial del Mar") +
@@ -325,8 +330,8 @@ seasonal_df$seasonal_adjusted <- seasonal_df$Seasonal + mean_tsm
 
 # Gráfico de TSM y Estacionalidad
 ggplot(seasonal_df, aes(x = fecha)) +
-  geom_line(aes(y = TSM, color = "TSM")) +
-  geom_line(aes(y = seasonal_adjusted, color = "Componente Estacional")) +
+  geom_line(aes(y = TSM, color = "TSM"), alpha = 0.5, size=1) +
+  geom_line(aes(y = seasonal_adjusted, color = "Componente Estacional"), alpha = 0.5, size=1) +
   labs(title = "Temperatura Superficial del Mar y su Componente Estacional",
        x = "Fecha",
        y = "Temperatura Superficial del Mar") +

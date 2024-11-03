@@ -22,7 +22,7 @@
 
 
 
-<meta name="date" content="2024-10-30" />
+<meta name="date" content="2024-11-02" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -30,7 +30,7 @@
   
   
 <link rel="prev" href="fuente-de-datos.html"/>
-<link rel="next" href="análisis-de-descomposición.html"/>
+<link rel="next" href="análisis-de-descomposición-de-una-serie-de-tiempo.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -139,7 +139,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><a href="./">A Minimal Book Example</a></li>
 
 <li class="divider"></li>
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Contexto de la propuesta</a></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Contexto de la propuestas</a></li>
 <li class="chapter" data-level="2" data-path="fuente-de-datos.html"><a href="fuente-de-datos.html"><i class="fa fa-check"></i><b>2</b> Fuente de Datos</a></li>
 <li class="chapter" data-level="3" data-path="exploración-de-la-serie-de-tiempo.html"><a href="exploración-de-la-serie-de-tiempo.html"><i class="fa fa-check"></i><b>3</b> Exploración de la Serie de Tiempo</a>
 <ul>
@@ -147,7 +147,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.2" data-path="exploración-de-la-serie-de-tiempo.html"><a href="exploración-de-la-serie-de-tiempo.html#rezago"><i class="fa fa-check"></i><b>3.2</b> Rezago</a></li>
 <li class="chapter" data-level="3.3" data-path="exploración-de-la-serie-de-tiempo.html"><a href="exploración-de-la-serie-de-tiempo.html#estacionalidad"><i class="fa fa-check"></i><b>3.3</b> Estacionalidad</a></li>
 </ul></li>
-<li class="chapter" data-level="4" data-path="análisis-de-descomposición.html"><a href="análisis-de-descomposición.html"><i class="fa fa-check"></i><b>4</b> Análisis de descomposición</a></li>
+<li class="chapter" data-level="4" data-path="análisis-de-descomposición-de-una-serie-de-tiempo.html"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html"><i class="fa fa-check"></i><b>4</b> Análisis de descomposición de una serie de tiempo</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="análisis-de-descomposición-de-una-serie-de-tiempo.html"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#identificación-de-modelos"><i class="fa fa-check"></i><b>4.1</b> Identificación de modelos</a></li>
+<li class="chapter" data-level="4.2" data-path="análisis-de-descomposición-de-una-serie-de-tiempo.html"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#descomposición-de-la-serie-de-tiempo"><i class="fa fa-check"></i><b>4.2</b> Descomposición de la serie de tiempo</a></li>
+<li class="chapter" data-level="4.3" data-path="análisis-de-descomposición-de-una-serie-de-tiempo.html"><a href="análisis-de-descomposición-de-una-serie-de-tiempo.html#estacionariedad"><i class="fa fa-check"></i><b>4.3</b> Estacionariedad</a></li>
+</ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
 
@@ -239,8 +244,8 @@ Mostrar Código
 <span id="cb2-12"><a href="exploración-de-la-serie-de-tiempo.html#cb2-12" tabindex="-1"></a></span>
 <span id="cb2-13"><a href="exploración-de-la-serie-de-tiempo.html#cb2-13" tabindex="-1"></a><span class="co"># Crear un gráfico de la serie temporal y la media móvil</span></span>
 <span id="cb2-14"><a href="exploración-de-la-serie-de-tiempo.html#cb2-14" tabindex="-1"></a><span class="fu">ggplot</span>(df_tsm, <span class="fu">aes</span>(<span class="at">x =</span> Date)) <span class="sc">+</span></span>
-<span id="cb2-15"><a href="exploración-de-la-serie-de-tiempo.html#cb2-15" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> tsm), <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb2-16"><a href="exploración-de-la-serie-de-tiempo.html#cb2-16" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> mov_avg_tsm), <span class="at">color =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-15"><a href="exploración-de-la-serie-de-tiempo.html#cb2-15" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> tsm), <span class="at">color =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-16"><a href="exploración-de-la-serie-de-tiempo.html#cb2-16" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> mov_avg_tsm), <span class="at">color =</span> <span class="st">&quot;red&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size=</span><span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb2-17"><a href="exploración-de-la-serie-de-tiempo.html#cb2-17" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;TSM y Media Móvil de 12 Meses&quot;</span>,</span>
 <span id="cb2-18"><a href="exploración-de-la-serie-de-tiempo.html#cb2-18" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Fecha&quot;</span>,</span>
 <span id="cb2-19"><a href="exploración-de-la-serie-de-tiempo.html#cb2-19" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;TSM&quot;</span>,</span>
@@ -287,7 +292,7 @@ Mostrar Código
 <span id="cb3-20"><a href="exploración-de-la-serie-de-tiempo.html#cb3-20" tabindex="-1"></a></span>
 <span id="cb3-21"><a href="exploración-de-la-serie-de-tiempo.html#cb3-21" tabindex="-1"></a><span class="co"># Gráfico 1: TSM y TSM_lag1</span></span>
 <span id="cb3-22"><a href="exploración-de-la-serie-de-tiempo.html#cb3-22" tabindex="-1"></a>plot1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_long <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Lag <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;tsm&quot;</span>, <span class="st">&quot;TSM_lag1&quot;</span>)), <span class="fu">aes</span>(<span class="at">x =</span> Date)) <span class="sc">+</span>  <span class="co"># Cambia el eje x a &#39;fecha&#39;</span></span>
-<span id="cb3-23"><a href="exploración-de-la-serie-de-tiempo.html#cb3-23" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Value, <span class="at">color =</span> Lag)) <span class="sc">+</span></span>
+<span id="cb3-23"><a href="exploración-de-la-serie-de-tiempo.html#cb3-23" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Value, <span class="at">color =</span> Lag), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size=</span><span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb3-24"><a href="exploración-de-la-serie-de-tiempo.html#cb3-24" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Comparativa de TSM y TSM Lag 1&quot;</span>,</span>
 <span id="cb3-25"><a href="exploración-de-la-serie-de-tiempo.html#cb3-25" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Fecha&quot;</span>,</span>
 <span id="cb3-26"><a href="exploración-de-la-serie-de-tiempo.html#cb3-26" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Temperatura Superficial del Mar&quot;</span>) <span class="sc">+</span></span>
@@ -298,7 +303,7 @@ Mostrar Código
 <span id="cb3-31"><a href="exploración-de-la-serie-de-tiempo.html#cb3-31" tabindex="-1"></a></span>
 <span id="cb3-32"><a href="exploración-de-la-serie-de-tiempo.html#cb3-32" tabindex="-1"></a><span class="co"># Gráfico 2: TSM y TSM_lag2</span></span>
 <span id="cb3-33"><a href="exploración-de-la-serie-de-tiempo.html#cb3-33" tabindex="-1"></a>plot2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_long <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Lag <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;tsm&quot;</span>, <span class="st">&quot;TSM_lag2&quot;</span>)), <span class="fu">aes</span>(<span class="at">x =</span> Date)) <span class="sc">+</span>  <span class="co"># Cambia el eje x a &#39;fecha&#39;</span></span>
-<span id="cb3-34"><a href="exploración-de-la-serie-de-tiempo.html#cb3-34" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Value, <span class="at">color =</span> Lag)) <span class="sc">+</span></span>
+<span id="cb3-34"><a href="exploración-de-la-serie-de-tiempo.html#cb3-34" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> Value, <span class="at">color =</span> Lag), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size=</span><span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb3-35"><a href="exploración-de-la-serie-de-tiempo.html#cb3-35" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Comparativa de TSM y TSM Lag 2&quot;</span>,</span>
 <span id="cb3-36"><a href="exploración-de-la-serie-de-tiempo.html#cb3-36" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Fecha&quot;</span>,</span>
 <span id="cb3-37"><a href="exploración-de-la-serie-de-tiempo.html#cb3-37" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Temperatura Superficial del Mar&quot;</span>) <span class="sc">+</span></span>
@@ -346,8 +351,8 @@ Mostrar Código
 <span id="cb4-19"><a href="exploración-de-la-serie-de-tiempo.html#cb4-19" tabindex="-1"></a></span>
 <span id="cb4-20"><a href="exploración-de-la-serie-de-tiempo.html#cb4-20" tabindex="-1"></a><span class="co"># Gráfico de TSM y Estacionalidad</span></span>
 <span id="cb4-21"><a href="exploración-de-la-serie-de-tiempo.html#cb4-21" tabindex="-1"></a><span class="fu">ggplot</span>(seasonal_df, <span class="fu">aes</span>(<span class="at">x =</span> fecha)) <span class="sc">+</span></span>
-<span id="cb4-22"><a href="exploración-de-la-serie-de-tiempo.html#cb4-22" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> TSM, <span class="at">color =</span> <span class="st">&quot;TSM&quot;</span>)) <span class="sc">+</span></span>
-<span id="cb4-23"><a href="exploración-de-la-serie-de-tiempo.html#cb4-23" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> seasonal_adjusted, <span class="at">color =</span> <span class="st">&quot;Componente Estacional&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb4-22"><a href="exploración-de-la-serie-de-tiempo.html#cb4-22" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> TSM, <span class="at">color =</span> <span class="st">&quot;TSM&quot;</span>), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size=</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-23"><a href="exploración-de-la-serie-de-tiempo.html#cb4-23" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> seasonal_adjusted, <span class="at">color =</span> <span class="st">&quot;Componente Estacional&quot;</span>), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">size=</span><span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb4-24"><a href="exploración-de-la-serie-de-tiempo.html#cb4-24" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Temperatura Superficial del Mar y su Componente Estacional&quot;</span>,</span>
 <span id="cb4-25"><a href="exploración-de-la-serie-de-tiempo.html#cb4-25" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Fecha&quot;</span>,</span>
 <span id="cb4-26"><a href="exploración-de-la-serie-de-tiempo.html#cb4-26" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Temperatura Superficial del Mar&quot;</span>) <span class="sc">+</span></span>
@@ -373,7 +378,7 @@ Figure 3.4: <em>Componente estacional de la Serie Temporal Mensual de Temperatur
         </div>
       </div>
 <a href="fuente-de-datos.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="análisis-de-descomposición.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="análisis-de-descomposición-de-una-serie-de-tiempo.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
@@ -427,20 +432,6 @@ gitbook.start({
 });
 </script>
 
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    var src = "true";
-    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:")
-      if (/^https?:/.test(src))
-        src = src.replace(/^https?:/, '');
-    script.src = src;
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
-</script>
 </body>
 
 </html>
