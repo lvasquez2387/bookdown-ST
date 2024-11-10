@@ -1,0 +1,402 @@
+# Modelos de Pronóstico para Series de Tiempo
+
+## Modelo Holt-Winter
+
+El análisis de series de tiempo es una herramienta clave que puede ser aplicada en diversas disciplinas, ya que permite entender y predecir patrones en datos secuenciales, facilitando la toma de decisiones informadas en áreas como la economía, meteorología, logística, oceanografía, entre otras. En el contexto de la oceanografía, por ejemplo, el análisis de series de tiempo es fundamental para estudiar variables como la temperatura superficial del mar, las cuales presentan patrones estacionales y tendencias a largo plazo que impactan en la dinámica climática, la biodiversidad marina y la seguridad marítima.
+
+Dentro de las metodologías de análisis de series de tiempo, el método de Holt-Winters es especialmente útil por su capacidad para capturar componentes de nivel, tendencia y estacionalidad, lo que permite ajustar modelos a datos con patrones recurrentes, como los asociados a las variaciones estacionales en la temperatura del agua marina. Este método, también conocido como suavizado exponencial triple, descompone la serie en tres elementos principales: *el nivel*, que representa el valor promedio actual; *la tendencia*, que muestra la dirección y velocidad del cambio en el tiempo; y *la estacionalidad*, que capta fluctuaciones periódicas.  
+
+Gracias a esta descomposición, Holt-Winters proporciona pronósticos precisos y explicables, lo cual es esencial para aplicaciones que requieren entender no solo el valor esperado, sino también los factores que la componen. Para este caso, se aplicará este método a la serie temporal de Temperatura Superficial del Mar, con el fin de comprender condiciones climáticas futuras y posibles efectos en los ecosistemas marinos y en actividades como la navegación y la pesca, entre otras.
+
+
+### Análsis exploratorio y preparación de los datos
+
+Como parte esencial de la implementación de cualquier modelo en ciencia de datos, es fundamental asegurar que el conjunto de datos cumpla con los requisitos básicos antes de proceder con el modelado. Esto incluye la eliminación de valores atípicos (outliers) y el tratamiento de los datos faltantes. Para ello, se realiza un análisis exploratorio de los datos, que permite identificar y corregir posibles inconsistencias, asegurando así que el modelo se base en información de calidad y esté preparado para generar predicciones precisas.
+
+
+<button type="button" onclick="toggleCode('code1');">Mostrar Código</button>
+<div id="code1" style="display:none;">
+
+```{r EDA, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+library(readxl)
+library(tidyverse)
+library(forecast)
+library(DT)
+
+# Cargar datos
+load("C:/Users/ASUS/OneDrive - PUJ Cali/2024_2/Series_de_tiempo/Unidad_1/bookdown-ST/df_tsm.RData")
+
+# Redondear a 4 cifras usando mutate
+temperature_data <- df_tsm %>%
+  select(Date, longitud, latitud, tsm) %>%
+  mutate(longitud = round(longitud, 4),
+         latitud = round(latitud, 4),
+         tsm = round(tsm, 4))
+
+# Crea una tabla intecrtiva paar ver los datos
+datatable(temperature_data, 
+          options = list(pageLength = 5,    # Muestra 5 filas por página
+                         autoWidth = TRUE, 
+                         scrollX = TRUE,
+                         dom = 'ftip'       # Opciones de visualización (filtro, tabla, info, paginación)
+                        ),
+          filter = 'top')                   # Filtro de búsqueda en la parte superior
+
+
+```
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+
+```{r EDA1, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", Tab.cap="*Serie temporal de Temperatura Superficial del Mar*", Tab.align='center'}
+
+library(readxl)
+library(tidyverse)
+library(forecast)
+library(DT)
+
+# Cargar datos
+load("C:/Users/ASUS/OneDrive - PUJ Cali/2024_2/Series_de_tiempo/Unidad_1/bookdown-ST/df_tsm.RData")
+
+# Redondear a 4 cifras usando mutate
+temperature_data <- df_tsm %>%
+  select(Date, longitud, latitud, tsm) %>%
+  mutate(longitud = round(longitud, 4),
+         latitud = round(latitud, 4),
+         tsm = round(tsm, 4))
+
+# Crea una tabla intecrtiva paar ver los datos
+datatable(temperature_data, 
+          options = list(pageLength = 5,    # Muestra 5 filas por página
+                         autoWidth = TRUE, 
+                         scrollX = TRUE,
+                         dom = 'ftip'       # Opciones de visualización (filtro, tabla, info, paginación)
+                        ),
+          filter = 'top')                   # Filtro de búsqueda en la parte superior
+
+
+```
+
+**Identificación de datos ausentes**
+
+La mayoría de los modelos son susceptibles a la presencia de datos ausentes, por lo que es fundamental identificar estos valores en el conjunto de datos e imputarlos de manera adecuada, de acuerdo con la naturaleza de los mismos. Este paso es importante para garantizar la calidad y fiabilidad de los resultados del modelo. En este caso, la fuente de datos seleccionada, cuenta con la serie temporal completa. 
+
+
+<button type="button" onclick="toggleCode('code2');">Mostrar Código</button>
+<div id="code2" style="display:none;">
+
+```{r NA, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+library(naniar)
+
+# Visualizar datos faltantes por columna
+gg_miss_var(temperature_data)
+
+```
+
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+```{r NA1, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", Fig.cap="*Identificación de datos faltantes*", Fig.align='center'}
+
+library(naniar)
+
+# Visualizar datos faltantes por columna
+gg_miss_var(temperature_data)
+
+```
+
+
+**Identificación de datos atípicos**
+
+Identificar y tratar los outliers (valores atípicos) en los datos antes de implementar un modelo, es un paso importante, ya que estos pueden distorsionar los resultados y afectar negativamente la precisión y el rendimiento del modelo. Los outliers pueden influir en la estimación de parámetros, alterar la distribución de los datos y sesgar las predicciones, lo que podría llevar a conclusiones erróneas. Por lo tanto, su detección y tratamiento adecuado garantiza que el modelo se base en datos representativos y confiables. En la siguiente figura se observa la existencia de valores atípicos, por lo tanto se empleará la mediana para tratarlos ya que estas fluctuaciones pudieron ser ocasionadas por eventos extremos y la  mediana proporcionará una mejor estimación central de la distribución de los datos, sin verse afectada por esos valores extremos.
+
+
+<button type="button" onclick="toggleCode('code3');">Mostrar Código</button>
+<div id="code3" style="display:none;">
+
+```{r out, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+# Graficar para observar posibles outliers
+ggplot(temperature_data, aes(y = tsm)) +
+  geom_boxplot() +
+  labs(title = "Deteccion de valores atipicos en la temperatura superficial del mar")
+
+# Tratamiento de outliers 
+temperature_data <- temperature_data %>%
+  mutate(tsm = ifelse(abs(scale(tsm)) > 3, median(tsm, na.rm = TRUE), tsm))
+
+```
+
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+
+```{r out1, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", Fig.cap="*Identificación de datos atípicos*", Fig.align='center'}
+
+# Graficar para observar posibles outliers
+ggplot(temperature_data, aes(y = tsm)) +
+  geom_boxplot() +
+  labs(title = "Deteccion de valores atipicos en la temperatura superficial del mar")
+
+# Tratamiento de outliers (por ejemplo, reemplazar con la media o mediana)
+temperature_data <- temperature_data %>%
+  mutate(tsm = ifelse(abs(scale(tsm)) > 3, median(tsm, na.rm = TRUE), tsm))
+
+```
+
+
+### Ajuste del Modelo de Holt-Winters
+
+Como se ha identificado en los capítulos anteriores, la serie temporal de la temperatura superficial del mar presenta características de estacionariedad. Esto implica que la serie exhibe una leve tendencia a largo plazo y que la amplitud de la variación se mantiene relativamente constante a lo largo del tiempo. En consecuencia, se aplicará el modelo Holt-Winter con estacionalidad aditiva para capturar adecuadamente estos patrones. Como resultado del ajuste, la siguiente figura muestra que en algunas ocasiones el modelo presenta una subestimación y sobrestimación; sin embargo, en general, sigue de manera precisa el comportamiento de la variable.
+
+<button type="button" onclick="toggleCode('code4');">Mostrar Código</button>
+<div id="code4" style="display:none;">
+
+```{r HW, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+library(plotly)
+
+# Configurar la codificación a UTF-8
+Sys.setlocale("LC_CTYPE", "es_ES.UTF-8")
+
+# Crear el objeto de serie de tiempo
+temp_ts <- ts(temperature_data$tsm, start = c(1993, 1), frequency = 12)
+
+# Ajustar el modelo Holt-Winters con estacionalidad aditiva
+model_hw <- HoltWinters(temp_ts, seasonal = "additive")
+
+# Extraer los valores ajustados
+fitted_values <- model_hw$fitted[, 1]  # Los valores ajustados
+actual_values <- model_hw$x  # Los valores originales
+
+# Las fechas que corresponden a la serie temporal original
+dates <- time(temp_ts)
+
+# Crear el dataframe con las fechas ajustadas y los valores originales y ajustados
+df_hw <- data.frame(
+  Date = dates[(length(dates) - length(fitted_values) + 1):length(dates)],  # Fechas ajustadas
+  Actual = actual_values[(length(actual_values) - length(fitted_values) + 1):length(actual_values)],  # Valores originales
+  Fitted = fitted_values  # Valores ajustados
+)
+
+# Crear el gráfico interactivo con Plotly
+p <- plot_ly(df_hw, x = ~Date) %>%
+  add_lines(y = ~Actual, name = "Serie Original", line = list(color = 'blue')) %>%
+  add_lines(y = ~Fitted, name = "Valores Ajustados", line = list(color = 'red', dash = 'dash')) %>%
+  layout(
+    title = list(
+      text = "<b>Ajuste de la serie de TSM con el modelo Holt-Winters</b>",  # Título en negrita
+      x = 0.5,  # Centrar el título
+      y = 0.96  # Ajustar la posición vertical del título
+    ),
+    xaxis = list(title = "Fecha"),
+    yaxis = list(title = "TSM [°C]"),
+    showlegend = TRUE,
+    legend = list(
+      x = 0.7,  # Ajusta la posición horizontal de la leyenda
+      y = 0.94,  # Ajusta la posición vertical de la leyenda para que quede por encima del gráfico
+      orientation = 'h'  # Cambia la orientación de la leyenda a horizontal
+    )
+  )
+
+# Mostrar el gráfico
+p
+
+```
+
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+
+```{r HW1, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", Fig.cap="*Ajuste del modelo Holt-Winter a los datos de TSM*", Fig.align='center'}
+library(plotly)
+
+# Configurar la codificación a UTF-8
+Sys.setlocale("LC_CTYPE", "es_ES.UTF-8")
+
+# Crear el objeto de serie de tiempo
+temp_ts <- ts(temperature_data$tsm, start = c(1993, 1), frequency = 12)
+
+# Ajustar el modelo Holt-Winters con estacionalidad aditiva
+model_hw <- HoltWinters(temp_ts, seasonal = "additive")
+
+# Extraer los valores ajustados
+fitted_values <- model_hw$fitted[, 1]  # Los valores ajustados
+actual_values <- model_hw$x  # Los valores originales
+
+# Las fechas que corresponden a la serie temporal original
+dates <- time(temp_ts)
+
+# Crear el dataframe con las fechas ajustadas y los valores originales y ajustados
+df_hw <- data.frame(
+  Date = dates[(length(dates) - length(fitted_values) + 1):length(dates)],  # Fechas ajustadas
+  Actual = actual_values[(length(actual_values) - length(fitted_values) + 1):length(actual_values)],  # Valores originales
+  Fitted = fitted_values  # Valores ajustados
+)
+
+# Crear el gráfico interactivo con Plotly
+p <- plot_ly(df_hw, x = ~Date) %>%
+  add_lines(y = ~Actual, name = "Serie Original", line = list(color = 'blue')) %>%
+  add_lines(y = ~Fitted, name = "Valores Ajustados", line = list(color = 'red', dash = 'dash')) %>%
+  layout(
+    title = list(
+      text = "<b>Ajuste de la serie de TSM con el modelo Holt-Winters</b>",  # Título en negrita
+      x = 0.5,  # Centrar el título
+      y = 0.96  # Ajustar la posición vertical del título
+    ),
+    xaxis = list(title = "Fecha"),
+    yaxis = list(title = "TSM [°C]"),
+    showlegend = TRUE,
+    legend = list(
+      x = 0.8,  # Ajusta la posición horizontal de la leyenda
+      y = 0.94,  # Ajusta la posición vertical de la leyenda para que quede por encima del gráfico
+      orientation = 'v'  # Cambia la orientación de la leyenda a horizontal
+    )
+  )
+
+# Mostrar el gráfico
+p
+```
+
+
+### Evaluación del desempeño del modelo 
+
+Evaluar el desempeño del modelo es un paso importante para establecer que tan acertado es este para hacer predicciones, para ello se dividió la serie de tiempo en dos conjuntos: uno de entrenamiento que contiene el 80% de los datos y uno de prueba que abarca el 20% restante. Se ajustó el modelo sobre el conjunto de entrenamiento y se realizó un pronóstico que cubre la longitud del conjunto de prueba. Finalmente, se evaluó el desempeño del modelo utilizando métricas de precisión, como el error cuadrático medio (RMSE), para medir la exactitud de las predicciones en comparación con los valores reales.A partir de la figura siguiente y la tabla con los resultados de las métricas, se observa que el modelo de Holt-Winter ajstado para la serie de TSM, mantiene una consistencia razonable entre los conjuntos de entrenamiento y prueba. El Error Medio (ME) es bajo en el entrenamiento (0.0317), mientras que en la prueba es negativo (-0.1320), sugiriendo una ligera sobrestimación en el pronóstico. El Error Cuadrático Medio (RMSE) y el Error Absoluto Medio (MAE) son similares en ambos conjuntos, lo que refleja una estabilidad en los errores del modelo. La precisión en términos de MAPE muestra un ligero incremento en el conjunto de prueba (1.26% frente a 1.19% en entrenamiento), y el ACF1 bajo indica poca autocorrelación en los errores, lo que contribuye a la confiabilidad del modelo.
+
+<button type="button" onclick="toggleCode('code5');">Mostrar Código</button>
+<div id="code5" style="display:none;">
+
+```{r desemp, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+# Librerías necesarias
+library(forecast)
+library(plotly)
+library(DT)
+
+# Dividir la serie temporal en conjunto de entrenamiento y prueba
+cutoff <- floor(0.8 * length(temp_ts))
+train <- window(temp_ts, end = time(temp_ts)[cutoff])
+test <- window(temp_ts, start = time(temp_ts)[cutoff + 1])
+
+# Ajustar el modelo Holt-Winters con el conjunto de entrenamiento
+model_hw_train <- HoltWinters(train, seasonal = "additive")
+
+# Pronosticar los próximos períodos
+forecast_hw <- forecast(model_hw_train, h = length(test))
+
+# Convertir a data frames para graficar con plotly
+train_df <- data.frame(Date = time(train), Value = as.numeric(train))
+forecast_df <- data.frame(Date = time(forecast_hw$mean), Forecast = as.numeric(forecast_hw$mean),
+                          Lower = as.numeric(forecast_hw$lower[, 2]), Upper = as.numeric(forecast_hw$upper[, 2]))
+test_df <- data.frame(Date = time(test), Value = as.numeric(test))
+
+# Crear la gráfica interactiva con plotly
+p <- plot_ly() %>%
+  add_lines(data = train_df, x = ~Date, y = ~Value, name = "Entrenamiento", line = list(color = 'blue')) %>%
+  add_lines(data = forecast_df, x = ~Date, y = ~Forecast, name = "Pronóstico", line = list(color = 'green')) %>%
+  add_ribbons(data = forecast_df, x = ~Date, ymin = ~Lower, ymax = ~Upper, name = "Intervalo de confianza",
+              fillcolor = 'rgba(0, 255, 0, 0.2)', line = list(color = 'rgba(0, 255, 0, 0)')) %>%
+  add_lines(data = test_df, x = ~Date, y = ~Value, name = "Prueba", line = list(color = 'red')) %>%
+  layout(
+         title = list(
+          text = "<b>Pronóstico Holt-Winters con Intervalo de Confianza</b>",  # Título en negrita
+            x = 0.5,  # Centrar el título
+            y = 0.96  # Ajustar la posición vertical del título
+    ),
+         xaxis = list(title = "Fecha"),
+         yaxis = list(title = "Temperatura Superficial del Mar [°C]"),
+         showlegend = TRUE,
+            legend = list(
+                x = 0.12,  # Ajusta la posición horizontal de la leyenda
+                y = 0.92, # Ajusta la posición vertical de la leyenda 
+                orientation = 'h'  # Cambia la orientación de la leyenda a horizontal
+            )
+  )
+p
+
+# Evaluar precisión del modelo y guardar los resultados en un data frame
+accuracy_results <- accuracy(forecast_hw, test)
+
+# Convertir a tabla interactiva
+datatable(accuracy_results, 
+          options = list(pageLength = 5, 
+                         autoWidth = TRUE,
+                         scrollX = TRUE,
+                         dom = 'ftip'), 
+          filter = 'top') 
+
+```
+
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+
+```{r desemp1, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", Fig.cap="*Evaluación del modelo Holt-Winter*", Fig.align='center'}
+
+# Librerías necesarias
+library(forecast)
+library(plotly)
+library(DT)
+
+# Dividir la serie temporal en conjunto de entrenamiento y prueba
+cutoff <- floor(0.8 * length(temp_ts))
+train <- window(temp_ts, end = time(temp_ts)[cutoff])
+test <- window(temp_ts, start = time(temp_ts)[cutoff + 1])
+
+# Ajustar el modelo Holt-Winters con el conjunto de entrenamiento
+model_hw_train <- HoltWinters(train, seasonal = "additive")
+
+# Pronosticar los próximos períodos
+forecast_hw <- forecast(model_hw_train, h = length(test))
+
+# Convertir a data frames para graficar con plotly
+train_df <- data.frame(Date = time(train), Value = as.numeric(train))
+forecast_df <- data.frame(Date = time(forecast_hw$mean), Forecast = as.numeric(forecast_hw$mean),
+                          Lower = as.numeric(forecast_hw$lower[, 2]), Upper = as.numeric(forecast_hw$upper[, 2]))
+test_df <- data.frame(Date = time(test), Value = as.numeric(test))
+
+# Crear la gráfica interactiva con plotly
+p <- plot_ly() %>%
+  add_lines(data = train_df, x = ~Date, y = ~Value, name = "Entrenamiento", line = list(color = 'blue')) %>%
+  add_lines(data = forecast_df, x = ~Date, y = ~Forecast, name = "Pronóstico", line = list(color = 'green')) %>%
+  add_ribbons(data = forecast_df, x = ~Date, ymin = ~Lower, ymax = ~Upper, name = "Intervalo de confianza",
+              fillcolor = 'rgba(0, 255, 0, 0.2)', line = list(color = 'rgba(0, 255, 0, 0)')) %>%
+  add_lines(data = test_df, x = ~Date, y = ~Value, name = "Prueba", line = list(color = 'red')) %>%
+  layout(
+         title = list(
+          text = "<b>Pronóstico Holt-Winters con Intervalo de Confianza</b>",  # Título en negrita
+            x = 0.5,  # Centrar el título
+            y = 0.96  # Ajustar la posición vertical del título
+    ),
+         xaxis = list(title = "Fecha"),
+         yaxis = list(title = "Temperatura Superficial del Mar [°C]"),
+         showlegend = TRUE,
+            legend = list(
+                x = 0.12,  # Ajusta la posición horizontal de la leyenda
+                y = 0.92, # Ajusta la posición vertical de la leyenda 
+                orientation = 'h'  # Cambia la orientación de la leyenda a horizontal
+            )
+  )
+p
+
+# Evaluar precisión del modelo y guardar los resultados en un data frame
+accuracy_results <- accuracy(forecast_hw, test)
+
+# Convertir a tabla interactiva
+datatable(accuracy_results, 
+          options = list(pageLength = 5, 
+                         autoWidth = TRUE,
+                         scrollX = TRUE,
+                         dom = 'ftip'), 
+          filter = 'top') 
+
+```
+
+
+En conclusión, el modelo Holt-Winter muestra un desempeño adecuado para predecir la temperatura superficial del mar, reflejando una buena precisión y estabilidad en los errores entre los conjuntos de entrenamiento y prueba. La baja autocorrelación en los errores indica que el modelo captura correctamente las características de la serie temporal, lo cual es favorable para pronósticos en el corto plazo. Sin embargo, es importante considerar que los ligeros errores observados en el conjunto de prueba, particularmente la sobrestimación en algunas ocasiones, podrían afectar la precisión a largo plazo.
