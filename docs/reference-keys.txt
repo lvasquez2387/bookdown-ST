@@ -41,3 +41,12 @@ análsiis-exploratorios-y-preparación-de-los-datos
 análsis-exploratorio-y-preparación-de-los-datos
 ajuste-del-modelo-de-holt-winters
 evaluación-del-desempeño-del-modelo
+tab:Prueba1
+funciones-de-autocorrelación-acf-y-autocorrelacion-parcial-pacf
+implementación-del-modelo-arima-estacional
+ajuste-del-modelo-sarima
+simplificación-del-análisis
+interpretabilidad-de-los-resultados
+base-para-modelos-más-complejos
+pronósticos
+representación-gráfica-del-modelo-sarima-ajustado
