@@ -50,3 +50,11 @@ interpretabilidad-de-los-resultados
 base-para-modelos-más-complejos
 pronósticos
 representación-gráfica-del-modelo-sarima-ajustado
+fig:fb1
+fig:res1
+fig:res3
+fig:res5
+regresión-en-series-de-tiempo
+algoritmo-facebook-prophet
+implementación-del-algoritmo
+evaluación-del-desempeño-del-modelo-1

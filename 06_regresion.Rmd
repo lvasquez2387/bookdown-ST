@@ -1,0 +1,540 @@
+# Regresión en Series de Tiempo 
+
+El concepto de regresión se refiere, en términos generales, al ajuste de un modelo matemático que describe la relación entre una variable dependiente y una o más variables independientes. En la regresión clásica, como la lineal o la no lineal, el objetivo es ajustar los datos a una función específica, como una línea recta $$ y = \beta_0 + \beta_1 x + \epsilon $$ o una función sinusoidal. Este enfoque busca modelar una relación estática entre variables basándose en observaciones independientes.  
+
+En el contexto de las series de tiempo, el concepto de regresión se amplía y adapta para capturar la naturaleza dinámica de los datos. Aquí, no solo se busca ajustar una relación simple, sino descomponer la serie temporal en varios componentes clave: una tendencia $$𝑔(𝑡)$$, que describe el comportamiento a largo plazo; una estacionalidad $$𝑠(𝑡)$$, que captura patrones repetitivos; y otros efectos como eventos externos $$ℎ(𝑡)$$. Este enfoque permite modelar de manera más completa y robusta las características intrínsecas de la serie, incluyendo la interacción entre las variables dependientes e independientes a lo largo del tiempo. Por lo tanto, la regresión en series temporales no es estática, sino una herramienta dinámica que integra múltiples factores para explicar la variabilidad de los datos.
+
+
+## Algoritmo Facebook Prophet
+
+Este algoritmo es un modelo de pronóstico diseñado para trabajar con series de tiempo que presentan estacionalidades complejas y efectos de eventos especiales, como las vacaciones. Desarrollado por Facebook, Prophet está especialmente optimizado para datos con patrones no lineales, como tendencias a largo plazo, estacionalidad y eventos excepcionales. Este modelo se basa en una descomposición aditiva de la serie de tiempo en tres componentes principales: **tendencia** (que captura el comportamiento a largo plazo de la serie), **estacionalidad** (que modela los ciclos periódicos, como los efectos estacionales), y **efectos de vacaciones** (que permiten incorporar cambios debidos a eventos extraordinarios).
+
+Una de las principales características de Prophet es su capacidad para detectar de forma automática los puntos de cambio en la tendencia, lo que le permite adaptarse a series con cambios abruptos o no lineales. Además, su enfoque bayesiano es robusto frente a los ruidos y los datos faltantes, lo que le da una gran flexibilidad para ajustarse a diferentes tipos de series de tiempo, incluso si no son estacionarias. Prophet también permite ajustar la estacionalidad y los efectos de vacaciones de manera intuitiva y fácil de interpretar.
+
+En el caso de series de tiempo climáticas, como la temperatura superficial del mar (TSM), este modelo es particularmente adecuado. La TSM está influenciada por fenómenos estacionales y eventos extraordinarios como El Niño, que puede generar cambios bruscos y afectar las condiciones climáticas a largo plazo. Prophet es ideal para este tipo de series, ya que puede manejar la estacionalidad de diferentes escalas (por ejemplo, estacionalidad anual) y adaptarse a las fluctuaciones anuales o cíclicas que caracterizan los fenómenos climáticos. 
+
+
+### Implementación del algoritmo 
+
+Como se abordó en capítulos anteriores, la serie de TSM analizada en este caso no presenta datos faltantes, incluye efectos de fenómenos climáticos como El Niño, que son ajenos a la estacionalidad de la señal, y se ha determinado que es estacionaria. Sin embargo, dada la flexibilidad y robustez del algoritmo Facebook Prophet, no es necesario que estos supuestos se cumplan estrictamente. Esto hace que la implementación del modelo sea más sencilla y directa.  
+
+El modelo se implementa con el fin de analizar y predecir la TSM, integrando eventos climáticos significativos de El Niño y La Niña, presentados durante el período abarcado por la serie de tiempo y reportados por la NOAA.  Estos son incorporados al modelo como "vacaciones" o eventos externos en el modelo aditivo, permitiendo capturar su impacto específico en la TSM. Además, es importante configurarar los parámetros de puntos de cambio (changepoint.prior.scale) y estacionalidad (seasonality.prior.scale), para ello se prueban varios valores y se seleccionan aquellos que ofrecen las mejores métricas de desempeño. Este ajuste cuidadoso evita la sobreestimación o subestimación de los pronósticos, asegurando una representación más precisa de las características intrínsecas de la serie de TSM. Finalmente, se genera un pronóstico a 12 meses, como estrategia para evaluar el desempeño del modelo y su capacidad para capturar tanto las tendencias estacionales como los efectos de los eventos externos.
+
+
+<button type="button" onclick="toggleCode('code1');">Mostrar Código</button>
+<div id="code1" style="display:none;">
+
+``` {r fb, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+library(prophet)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+
+# Cargar datos
+#load("C:/Users/ASUS/OneDrive - PUJ Cali/2024_2/Series_de_tiempo/Unidad_1/bookdown-ST/df_tsm.RData")
+load("C:/Users/lvasquez/OneDrive - PUJ Cali/2024_2/Series_de_tiempo/Unidad_1/bookdown-ST/df_tsm.RData")
+
+# Preparar los datos
+data_prophet <- df_tsm %>%
+  rename(ds = Date, y = tsm)
+
+# Definicion de fechas de eventos ENOS
+eventos <- data.frame(
+  event = c("El Niño", "La Niña", "El Niño","El Niño", "La Niña", "El Niño", "La Niña", "La Niña", "El Niño", "La Niña", "El Niño", "La Niña","La Niña", "El Niño"),  # Tipo de evento
+  start_date = as.Date(c("1997-05-01", "1998-06-01", "2002-06-01","2004-07-01","2007-07-01", "2009-08-01", "2010-06-01", "2011-08-01", "2014-10-01", "2017-10-01","2018-10-01", "2020-08-01","2021-09-01","2023-07-01")),  # Fecha de inicio
+  end_date = as.Date(c("1998-05-01", "2001-02-01", "2003-02-01", "2005-04-01","2008-07-01", "2010-03-01", "2011-05-01", "2012-03-01", "2016-04-01", "2018-04-01","2019-05-01","2021-04-01","2023-01-01","2023-12-01"))  # Fecha de fin
+)
+
+# Crear un dataframe de fechas mensuales para cada evento
+eventos_mensuales <- data.frame()
+
+for(i in 1:nrow(eventos)) {
+  # Generar secuencia de fechas mensuales dentro del rango de cada evento
+  fechas_evento <- seq(from = eventos$start_date[i], to = eventos$end_date[i], by = "month")
+  
+  # Crear un dataframe para agregar
+  df_evento <- data.frame(
+    event = rep(eventos$event[i], length(fechas_evento)),  # El tipo de evento (El Niño o La Niña)
+    date = fechas_evento
+  )
+  
+  # Añadir a la lista general
+  eventos_mensuales <- rbind(eventos_mensuales, df_evento)
+}
+
+df_tsm$Date <- as.Date(df_tsm$Date)
+
+# Crear una columna para identificar si hay un evento en cada mes
+df_tsm$evento <- "No Evento"
+
+for(i in 1:nrow(eventos_mensuales)) {
+  df_tsm$evento[df_tsm$Date == eventos_mensuales$date[i]] <- eventos_mensuales$event[i]
+}
+
+# Crear el dataframe de vacaciones para Prophet
+holidays <- data.frame(
+  holiday = c("El Niño", "La Niña"),
+  ds = eventos_mensuales$date,
+  lower_window = 0,
+  upper_window = 2  # Puede ajustar el efecto a varios meses
+)
+
+# Ajustar el modelo Prophet con los efectos de vacaciones
+modelo_prophet <- prophet(
+  data_prophet,
+  holidays = holidays,
+  changepoint.prior.scale = 0.5,
+  seasonality.prior.scale = 30,
+  holidays.prior.scale = 10,
+  yearly.seasonality = TRUE,
+  weekly.seasonality = FALSE
+)
+
+# Crear fechas futuras para 12 períodos más
+future <- make_future_dataframe(modelo_prophet, periods = 12, freq = "month")
+
+# Generar el pronóstico
+forecast <- predict(modelo_prophet, future)
+
+# Combinar datos observados con el pronóstico
+forecast_plot <- forecast %>%
+  select(ds, yhat, yhat_lower, yhat_upper) %>%
+  left_join(data_prophet, by = "ds") # Unir datos históricos
+
+# Crear gráfico interactivo con plotly
+plot <- plot_ly(forecast_plot, x = ~ds) %>%
+  # Datos observados
+  add_lines(y = ~y, name = "Datos observados", line = list(color = 'blue')) %>%
+  # Línea del pronóstico
+  add_lines(y = ~yhat, name = "Pronóstico", line = list(color = 'red')) %>%
+  # Bandas de confianza
+  add_ribbons(ymin = ~yhat_lower, ymax = ~yhat_upper, name = "Intervalo de confianza", 
+              fillcolor = 'rgba(0,255,0,0.2)', line = list(color = 'transparent')) %>%
+   layout(
+    title = list(
+      text = "Pronóstico de TSM empleando el algoritmo Facebook Prophet",
+      x = 0.5, # Centrar horizontalmente
+      y = 0.95, # Alejar del borde superior
+      font = list(size = 18) # Ajustar tamaño del título
+    ),
+    xaxis = list(title = "Fecha"),
+    yaxis = list(title = "TSM"),
+    legend = list(orientation = "h", x = 0.3, y = -0.2)
+   )
+
+plot
+
+```
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+
+``` {r fb1, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", fig.cap="*Pronóstico de TSM empleando el algoritmo Facebook Prophet*", fig.align='center'}
+
+library(prophet)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+
+# Cargar datos
+load("C:/Users/ASUS/OneDrive - PUJ Cali/2024_2/Series_de_tiempo/Unidad_1/bookdown-ST/df_tsm.RData")
+
+# Preparar los datos
+data_prophet <- df_tsm %>%
+  rename(ds = Date, y = tsm)
+
+# Definicion de fechas de eventos ENOS
+eventos <- data.frame(
+  event = c("El Niño", "La Niña", "El Niño","El Niño", "La Niña", "El Niño", "La Niña", "La Niña", "El Niño", "La Niña", "El Niño", "La Niña","La Niña", "El Niño"),  # Tipo de evento
+  start_date = as.Date(c("1997-05-01", "1998-06-01", "2002-06-01","2004-07-01","2007-07-01", "2009-08-01", "2010-06-01", "2011-08-01", "2014-10-01", "2017-10-01","2018-10-01", "2020-08-01","2021-09-01","2023-07-01")),  # Fecha de inicio
+  end_date = as.Date(c("1998-05-01", "2001-02-01", "2003-02-01", "2005-04-01","2008-07-01", "2010-03-01", "2011-05-01", "2012-03-01", "2016-04-01", "2018-04-01","2019-05-01","2021-04-01","2023-01-01","2023-12-01"))  # Fecha de fin
+)
+
+# Crear un dataframe de fechas mensuales para cada evento
+eventos_mensuales <- data.frame()
+
+for(i in 1:nrow(eventos)) {
+  # Generar secuencia de fechas mensuales dentro del rango de cada evento
+  fechas_evento <- seq(from = eventos$start_date[i], to = eventos$end_date[i], by = "month")
+  
+  # Crear un dataframe para agregar
+  df_evento <- data.frame(
+    event = rep(eventos$event[i], length(fechas_evento)),  # El tipo de evento (El Niño o La Niña)
+    date = fechas_evento
+  )
+  
+  # Añadir a la lista general
+  eventos_mensuales <- rbind(eventos_mensuales, df_evento)
+}
+
+df_tsm$Date <- as.Date(df_tsm$Date)
+
+# Crear una columna para identificar si hay un evento en cada mes
+df_tsm$evento <- "No Evento"
+
+for(i in 1:nrow(eventos_mensuales)) {
+  df_tsm$evento[df_tsm$Date == eventos_mensuales$date[i]] <- eventos_mensuales$event[i]
+}
+
+# Crear el dataframe de vacaciones para Prophet
+holidays <- data.frame(
+  holiday = c("El Niño", "La Niña"),
+  ds = eventos_mensuales$date,
+  lower_window = 0,
+  upper_window = 2  # Puede ajustar el efecto a varios meses
+)
+
+# Ajustar el modelo Prophet con los efectos de vacaciones
+modelo_prophet <- prophet(
+  data_prophet,
+  holidays = holidays,
+  changepoint.prior.scale = 0.5,
+  seasonality.prior.scale = 30,
+  holidays.prior.scale = 10,
+  yearly.seasonality = TRUE,
+  weekly.seasonality = TRUE
+)
+
+# Crear fechas futuras para 12 períodos más
+future <- make_future_dataframe(modelo_prophet, periods = 12, freq = "month")
+
+# Generar el pronóstico
+forecast <- predict(modelo_prophet, future)
+
+# Combinar datos observados con el pronóstico
+forecast_plot <- forecast %>%
+  select(ds, yhat, yhat_lower, yhat_upper) %>%
+  left_join(data_prophet, by = "ds") # Unir datos históricos
+
+# Crear gráfico interactivo con plotly
+plot <- plot_ly(forecast_plot, x = ~ds) %>%
+  # Datos observados
+  add_lines(y = ~y, name = "Datos observados", line = list(color = 'blue')) %>%
+  # Línea del pronóstico
+  add_lines(y = ~yhat, name = "Pronóstico", line = list(color = 'red')) %>%
+  # Bandas de confianza
+  add_ribbons(ymin = ~yhat_lower, ymax = ~yhat_upper, name = "Intervalo de confianza", 
+              fillcolor = 'rgba(0,255,0,0.2)', line = list(color = 'transparent')) %>%
+   layout(
+    title = list(
+      text = "Pronóstico de TSM empleando el algoritmo Facebook Prophet",
+      x = 0.5, # Centrar horizontalmente
+      y = 0.95, # Alejar del borde superior
+      font = list(size = 18) # Ajustar tamaño del título
+    ),
+    xaxis = list(title = "Fecha"),
+    yaxis = list(title = "TSM"),
+    legend = list(orientation = "h", x = 0.3, y = -0.2)
+   )
+
+plot
+
+```
+
+
+La gráfica muestra el comportamiento de la (TSM) a lo largo del tiempo, incluyendo los valores observados, el pronóstico generado por el modelo Prophet y el intervalo de confianza. Los datos históricos, representados por la línea azul, exhiben fluctuaciones periódicas que reflejan la estacionalidad propia de esta variable climática. El pronóstico, indicado por la línea roja, sigue de cerca estas tendencias y patrones estacionales, lo que sugiere que el modelo Prophet logró capturar adecuadamente las características principales de la serie de tiempo. Por su parte, el intervalo de confianza, representado por el área sombreada en verde, proporciona una medida de la incertidumbre en las predicciones, mostrando un ensanchamiento razonable a medida que el horizonte temporal se aleja de los datos históricos. Este comportamiento indica que el modelo mantiene un equilibrio adecuado entre precisión y varianza en sus predicciones. En términos generales, el modelo Prophet se adapta bien a la serie TSM, ya que logra modelar tanto la tendencia como la estacionalidad anual. Sin embargo, fenómenos extremos como El Niño, que generan variaciones abruptas en la TSM (Niño 1997-1998, Niña 2010-2011, Niño 2015-2016), podrían requerir un tratamiento adicional ya que estas fluctuaciones estan un poco subestimadas. Aun así, Prophet se perfila hasta el momento como la herramienta más robusta y apropiada para analizar y predecir series de tiempo climáticas, que los modelos porbados en los capítulos anteriores, gracias a su capacidad para manejar estacionalidad compleja y tendencias no lineales.
+
+
+### Evaluación del desempeño del modelo
+
+Para evaluar el desempeño del modelo, es recomendable comenzar con una inspección visual de los residuos del modelo ajustado. Esto permite verificar si presentan alguna tendencia o estacionalidad inherente a la señal original. En la siguiente gráfica, los residuos no parecen mostrar, a simple vista, las características mencionadas, ya que oscilan de manera aleatoria alrededor de cero. No obstante, es necesario realizar análisis adicionales para comprobarlo estadísticamente y confirmar la calidad del ajuste del modelo.
+
+<button type="button" onclick="toggleCode('code2');">Mostrar Código</button>
+<div id="code2" style="display:none;">
+
+``` {r res, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+# Cargar la librería plotly
+library(plotly)
+
+# Filtrar el pronóstico para que coincida con las fechas de los datos históricos
+forecast_historical <- forecast[1:nrow(data_prophet), ]
+
+# Calcular los residuos
+residuos <- data_prophet$y - forecast_historical$yhat
+
+# Crear un marco de datos con las fechas y los residuos
+residuos_df <- data.frame(ds = data_prophet$ds, resid = residuos)
+
+# Crear la gráfica con plotly
+residuos_plot <- plot_ly(residuos_df, x = ~ds, y = ~resid, type = 'scatter', mode = 'lines', 
+                         line = list(color = 'blue')) %>%
+  layout(title = "Residuos del modelo Prophet",
+         xaxis = list(title = "Fecha"),
+         yaxis = list(title = "Residuos"),
+         showlegend = FALSE)
+
+# Mostrar la gráfica
+residuos_plot
+
+
+```
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+
+``` {r res1, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", fig.cap="*Residuos del modelo Facebook Prophet*", fig.align='center'}
+
+# Cargar la librería plotly
+library(plotly)
+
+# Filtrar el pronóstico para que coincida con las fechas de los datos históricos
+forecast_historical <- forecast[1:nrow(data_prophet), ]
+
+# Calcular los residuos
+residuos <- data_prophet$y - forecast_historical$yhat
+
+# Crear un marco de datos con las fechas y los residuos
+residuos_df <- data.frame(ds = data_prophet$ds, resid = residuos)
+
+# Crear la gráfica con plotly
+residuos_plot <- plot_ly(residuos_df, x = ~ds, y = ~resid, type = 'scatter', mode = 'lines', 
+                         line = list(color = 'blue')) %>%
+  layout(title = "Residuos del modelo Facebook Prophet",
+         xaxis = list(title = "Fecha"),
+         yaxis = list(title = "Residuos"),
+         showlegend = FALSE)
+
+# Mostrar la gráfica
+residuos_plot
+
+```
+
+
+***Función de Autocorrelación***
+
+La función de autocorrelación (ACF) aplicada a los residuos de un modelo sirve para analizar si estos presentan correlación en diferentes desfases (lags), lo que ayuda a evaluar si el modelo ha capturado correctamente la estructura de la serie temporal. En la gráfica ACF de los residuos, se observa que para los primeros desfases (lag 1 y lag 2, principalmente), la autocorrelación excede los intervalos de confianza (representados por las líneas azules punteadas), lo que indica dependencia en los residuos. Sin embargo, para desfases mayores, las barras se mantienen dentro de los intervalos de confianza, sugiriendo que no hay correlación significativa en esos puntos. Esto implica que, aunque los residuos son mayormente aleatorios, la correlación inicial puede ser un indicio de que el modelo no captura completamente algunas características de la serie, lo que podría requerir ajustes en los hiperparámetros o en la estructura del modelo.
+
+<button type="button" onclick="toggleCode('code3');">Mostrar Código</button>
+<div id="code3" style="display:none;">
+
+``` {r res2, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+ 
+ # Instalar y cargar la librería para ACF
+library(forecast)
+
+# Graficar la ACF de los residuos
+acf(residuos, main = "Función de Autocorrelación de los residuos")
+
+```
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+``` {r res3, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", fig.cap="*Función de Autocorrelación de los residuos*", fig.align='center'}
+ 
+ # Instalar y cargar la librería para ACF
+library(forecast)
+
+# Graficar la ACF de los residuos
+acf(residuos, main = "Función de Autocorrelación de los residuos")
+
+```
+
+
+***Pruebas de Normalidad***
+
+El análisis de los residuos mediante la gráfica de cuantiles normales (Q-Q plot) y la prueba de Shapiro-Wilk se utiliza para evaluar si los residuos del modelo siguen una distribución normal, uno de los supuestos clave en modelos estadísticos. La gráfica Q-Q permite inspeccionar visualmente la normalidad al comparar los cuantiles de los residuos con los de una distribución normal teórica. Por su parte, el test de Shapiro-Wilk proporciona una evaluación estadística de esta suposición, indicando si hay evidencia suficiente para rechazar la normalidad.
+
+En este caso, la gráfica Q-Q muestra que la mayoría de los puntos se encuentran alineados sobre la recta teórica, indicando un buen ajuste a la normalidad. Sin embargo, en uno de los extremos se observa que tres puntos se desvían ligeramente de la recta, lo que puede sugerir ligeros problemas con los valores extremos o colas de la distribución. Por otro lado, el test de Shapiro-Wilk arroja un estadístico $$𝑊=0.99211$$ y un valor p de 0.06657. Como el valor p es mayor al nivel de significancia típico ($$𝛼=0.05$$), no se rechaza la hipótesis nula de que los residuos siguen una distribución normal. En conjunto, estos resultados indican que, aunque hay ligeras desviaciones en los extremos, los residuos cumplen razonablemente bien con la suposición de normalidad.
+
+<button type="button" onclick="toggleCode('code4');">Mostrar Código</button>
+<div id="code4" style="display:none;">
+
+``` {r res4, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+library(DT) 
+
+ # Graficar el Q-Q plot de los residuos
+qqnorm(residuos, main = "Gráfico Q-Q de los Residuos del modelo Facebook Prophet", col = "blue")
+
+# Agregar la línea de referencia que representa la normalidad
+qqline(residuos, col = "red", lwd = 2, lty = 2)  # Línea roja discontinua
+
+# Realizar la prueba de normalidad de Shapiro-Wilk
+resultado_shapiro <- shapiro.test(residuos)
+
+# Crear un dataframe con los resultados
+tabla_resultados <- data.frame(
+  Estadístico = resultado_shapiro$statistic,
+  p_valor = resultado_shapiro$p.value
+)
+
+# Mostrar la tabla interactiva
+datatable(
+  tabla_resultados,
+  options = list(pageLength = 5, searching = FALSE),  # Opciones de paginación y búsqueda
+  rownames = FALSE  # Sin números de fila
+)
+
+```
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+
+``` {r res5, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", fig.cap="*Gráfico Q-Q de los Residuos del modelo Facebook Prophet*", fig.align='center'}
+
+library(DT)
+ 
+ # Graficar el Q-Q plot de los residuos
+qqnorm(residuos, main = "Gráfico Q-Q de los Residuos del modelo Facebook Prophet", col = "blue")
+
+# Agregar la línea de referencia que representa la normalidad
+qqline(residuos, col = "red", lwd = 2, lty = 2)  # Línea roja discontinua
+
+# Realizar la prueba de normalidad de Shapiro-Wilk
+resultado_shapiro <- shapiro.test(residuos)
+
+# Crear un dataframe con los resultados
+tabla_resultados <- data.frame(
+  Estadístico = resultado_shapiro$statistic,
+  p_valor = resultado_shapiro$p.value
+)
+
+# Mostrar la tabla interactiva
+datatable(
+  tabla_resultados,
+  options = list(pageLength = 5, searching = FALSE),  # Opciones de paginación y búsqueda
+  rownames = FALSE  # Sin números de fila
+)
+ 
+ 
+```
+
+
+***Prueba de heterocedasticidad***
+
+La prueba de Breusch-Pagan se utiliza para evaluar la presencia de heterocedasticidad en los residuos de un modelo, es decir, si la varianza de los errores es constante a lo largo de las predicciones realizadas. La heterocedasticidad puede afectar la validez de las inferencias estadísticas y la precisión de los intervalos de confianza, por lo que es importante verificar este supuesto en el análisis de los residuos.
+
+En este caso, la prueba de Breusch-Pagan arroja un estadístico $$𝐵𝑃=0.031744$$ con un valor p de 0.8586. Como el valor p es considerablemente mayor al nivel de significancia típico ($$𝛼=0.05$$), no se rechaza la hipótesis nula de homocedasticidad, lo que sugiere que los residuos tienen una varianza constante. Este resultado indica que no hay evidencia de heterocedasticidad en los residuos del modelo ajustado, cumpliendo así con este supuesto fundamental.
+
+<button type="button" onclick="toggleCode('code5');">Mostrar Código</button>
+<div id="code5" style="display:none;">
+
+``` {r res6, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+# Instalar y cargar la librería lmtest
+library(lmtest)
+
+# Ajustar un modelo de regresión lineal sobre los residuos (por ejemplo, los residuos y el tiempo)
+modelo_resid <- lm(residuos ~ data_prophet$ds)
+
+# Realizar la prueba de Breusch-Pagan sobre el modelo ajustado
+bp_test <- bptest(modelo_resid)
+
+# Crear un dataframe con los resultados del test
+bp_results <- data.frame(
+  Test = "Breusch-Pagan",
+  Statistic = round(bp_test$statistic, 4),
+  DF = bp_test$parameter,
+  P_value = round(bp_test$p.value, 4)
+)
+
+# Mostrar los resultados en una tabla interactiva
+datatable(bp_results, options = list(
+  pageLength = 5, # Número de filas visibles por página
+  dom = 't',      # Solo mostrar la tabla sin controles adicionales
+  columnDefs = list(list(className = 'dt-center', targets = "_all")) # Centrar el contenido
+))
+
+```
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+
+``` {r res7, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", tab.cap="*Test de homocedasticidad*", tab.align='center'}
+
+# Instalar y cargar la librería lmtest
+library(lmtest)
+
+# Ajustar un modelo de regresión lineal sobre los residuos (por ejemplo, los residuos y el tiempo)
+modelo_resid <- lm(residuos ~ data_prophet$ds)
+
+# Realizar la prueba de Breusch-Pagan sobre el modelo ajustado
+bp_test <- bptest(modelo_resid)
+
+# Crear un dataframe con los resultados del test
+bp_results <- data.frame(
+  Test = "Breusch-Pagan",
+  Statistic = round(bp_test$statistic, 4),
+  DF = bp_test$parameter,
+  P_value = round(bp_test$p.value, 4)
+)
+
+# Mostrar los resultados en una tabla interactiva
+datatable(bp_results, options = list(
+  pageLength = 5, # Número de filas visibles por página
+  dom = 't',      # Solo mostrar la tabla sin controles adicionales
+  columnDefs = list(list(className = 'dt-center', targets = "_all")) # Centrar el contenido
+))
+
+```
+
+
+***Métricas de medición de desempeño del modelo***
+
+Las métricas de error son fundamentales para evaluar el desempeño de un modelo de pronóstico, ya que nos permiten cuantificar la diferencia entre los valores observados y las predicciones realizadas. En este caso, se calcularon tres métricas clave: el RMSE (Root Mean Squared Error o Error Cuadrático Medio de la Raíz), cuyo valor fue 0.3933, lo que indica que, en promedio, el modelo tiene una diferencia de aproximadamente 0.39 unidades entre las predicciones y los valores observados. El MAE (Mean Absolute Error o Error Absoluto Medio), con un valor de 0.3076, refleja que el error promedio entre las predicciones y los valores reales es de 0.31 unidades, sugiriendo un buen ajuste. Por último, el MAPE (Mean Absolute Percentage Error o Error Porcentual Absoluto Medio) fue de 0.0113 o 1.13%, lo que indica que el modelo tiene un error relativo muy bajo en términos porcentuales, lo que evidencia que las predicciones son altamente precisas. En conjunto, estos resultados sugieren que el modelo de Prophet se ajusta adecuadamente a los datos de TSM, con errores pequeños tanto en términos absolutos como relativos, lo que demuestra su efectividad para realizar pronósticos de esta serie temporal.
+
+<button type="button" onclick="toggleCode('code6');">Mostrar Código</button>
+<div id="code6" style="display:none;">
+
+``` {r res8, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE}
+
+library(Metrics)
+library(DT)
+
+# Calcular las métricas de error
+rmse_val <- rmse(data_prophet$y, forecast$yhat)
+mae_val <- mae(data_prophet$y, forecast$yhat)
+mape_val <- mape(data_prophet$y, forecast$yhat)
+
+# Crear un dataframe con las métricas calculadas
+metrics_results <- data.frame(
+  Metric = c("RMSE", "MAE", "MAPE"),
+  Value = c(round(rmse_val, 4), round(mae_val, 4), round(mape_val, 4))
+)
+
+# Mostrar los resultados en una tabla interactiva
+datatable(metrics_results, options = list(
+  pageLength = 5, # Número de filas visibles por página
+  dom = 't',      # Solo mostrar la tabla sin controles adicionales
+  columnDefs = list(list(className = 'dt-center', targets = "_all")) # Centrar el contenido
+))
+
+```
+
+</div> <script> function toggleCode(codeId) { var x = document.getElementById(codeId); if (x.style.display === "none") { x.style.display = "block"; } else { x.style.display = "none"; } } 
+</script>
+
+
+``` {r res9, message=FALSE, warning=FALSE, echo=FALSE, out.width="80%", tab.cap="*Métricas de error*", tab.align='center'}
+
+library(Metrics)
+library(DT)
+
+# Calcular las métricas de error
+rmse_val <- rmse(data_prophet$y, forecast$yhat)
+mae_val <- mae(data_prophet$y, forecast$yhat)
+mape_val <- mape(data_prophet$y, forecast$yhat)
+
+# Crear un dataframe con las métricas calculadas
+metrics_results <- data.frame(
+  Metric = c("RMSE", "MAE", "MAPE"),
+  Value = c(round(rmse_val, 4), round(mae_val, 4), round(mape_val, 4))
+)
+
+# Mostrar los resultados en una tabla interactiva
+datatable(metrics_results, options = list(
+  pageLength = 5, # Número de filas visibles por página
+  dom = 't',      # Solo mostrar la tabla sin controles adicionales
+  columnDefs = list(list(className = 'dt-center', targets = "_all")) # Centrar el contenido
+))
+
+```
+
+Para concluir, el modelo Prophet ha demostrado ser adecuado para el pronóstico de la serie temporal de TSM, ya que, a pesar de los eventos climáticos extremos como El Niño y La Niña, se logró un buen ajuste. La incorporación de estos eventos como variables exógenas permitió mejorar la capacidad del modelo para capturar sus efectos en la serie. Las métricas de error obtenidas, como el RMSE, MAE y MAPE, indican que las predicciones realizadas son precisas, con errores mínimos tanto absolutos como relativos. Además, los análisis de residuos, como la prueba de normalidad y la autocorrelación, sugieren que el modelo no presenta patrones sistemáticos no capturados, lo que refuerza la confiabilidad de los resultados.
