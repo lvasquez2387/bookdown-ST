@@ -58,3 +58,12 @@ regresión-en-series-de-tiempo
 algoritmo-facebook-prophet
 implementación-del-algoritmo
 evaluación-del-desempeño-del-modelo-1
+fig:ELMAN1
+fig:JORDAN1
+redes-nauronales-recurrentes-elman-y-jordan
+modelo-elman
+implementación-del-modelo
+modelo-jordan
+implementación-del-modelo-1
+análisis-comparativo-de-modelos-elman-y-jordan
+por-qué-elman-podría-ser-mejor-en-este-caso
