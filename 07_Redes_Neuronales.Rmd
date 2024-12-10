@@ -379,7 +379,7 @@ fig <- layout(fig,
 fig
 ```
 
-# Análisis Comparativo de Modelos ELMAN y JORDAN
+## Análisis Comparativo de Modelos ELMAN y JORDAN
 
 En comparación entre los modelos Elman y Jordan implementados, se observan diferencias en su comportamiento y desempeño. El modelo Elman mostró un RMSE de 0.072 y un MSE de 0.0052, mientras que el modelo Jordan presentó un RMSE de 0.076 y un MSE de 0.0057. Aunque ambos modelos tienen un rendimiento aceptable con errores bajos en las predicciones normalizadas, el modelo Elman presentó un mejor ajuste, reflejado en los valores más bajos de RMSE y MSE. En términos de patrones, ambos modelos lograron capturar la tendencia general de la serie temporal, con predicciones cercanas a los datos reales. Sin embargo, en ambos casos se observaron desfases y desviaciones en los picos y valles, lo que indica limitaciones para captar variaciones locales rápidas y posibles ruidos. A pesar de ello, el modelo Elman parece tener una ligera ventaja en precisión y ajuste debido a sus mejores métricas de error. Esto se podría atribuir a la arquitectura y configuración específica del modelo Elman, que, con un enfoque en la memoria temporal y una estructura ajustada, fue más efectivo para capturar patrones a largo plazo en comparación con el modelo Jordan. En conclusión, el modelo Elman es ligeramente superior en términos de ajuste y precisión, pero ambos presentan limitaciones similares que podrían abordarse mediante ajustes en sus hiperparámetros o arquitecturas.
 
